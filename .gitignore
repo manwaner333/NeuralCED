@@ -1,0 +1,13 @@
+**/__pycache__/
+**/.ipynb_checkpoints/
+*.py[cod]
+.idea/
+.vs/
+*.synctex.gz
+*.psv
+test_data_for_ode.bin
+experiments/datasets/*
+experiments/results/*
+experiments_forecasting/*
+experiments_forecasting.zip
+experiments_forecasting
