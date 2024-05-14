@@ -8,6 +8,12 @@
 test_data_for_ode.bin
 experiments/datasets/*
 experiments/results/*
-experiments_forecasting/*
+experiments_forecasting/datasets
 experiments_forecasting.zip
-experiments_forecasting
+experiments_forecasting/results
+Hallucination/datasets/dataset_v3.json
+Hallucination/datasets/wiki_bio_info.csv
+Hallucination/processed_datasets
+experiments_test/*
+experiments_test
+Hallucination/datasets/truthful_qa.json

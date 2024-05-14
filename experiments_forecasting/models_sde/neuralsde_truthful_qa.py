@@ -1,0 +1,457 @@
+import pathlib
+import sys
+import torch
+import torchcde
+import torchsde
+
+here = pathlib.Path(__file__).resolve().parent
+sys.path.append(str(here / '..' / '..'))
+
+import controldiffeq
+from .metamodel import ContinuousRNNConverter
+
+
+
+class NeuralCDE(torch.nn.Module):
+    """A Neural CDE model. Provides a wrapper around the lower-level cdeint function, to get a flexible Neural CDE
+    model.
+
+    Specifically, considering the CDE
+    ```
+    z_t = z_{t_0} + \int_{t_0}^t f(z_s)dX_s
+    ```
+    where X is determined by the data, and given some terminal time t_N, then this model first computes z_{t_N}, then
+    performs a linear function on it, and then outputs the result.
+
+    It's known that linear functions on CDEs are universal approximators, so this is a very general type of model.
+    """
+    def __init__(self, func, input_channels, hidden_channels, output_channels, initial=True):
+        """
+        Arguments:
+            func: As cdeint.
+            input_channels: How many channels there are in the input.
+            hidden_channels: The number of hidden channels, i.e. the size of z_t.
+            output_channels: How many channels to perform a linear map to at the end.
+            initial: Whether to automatically construct the initial value from data (in which case z0 must not be passed
+                during forward()), or to use the one supplied during forward (in which case z0 must be passed during
+                forward()).
+        """
+        if isinstance(func, ContinuousRNNConverter):  # ugly hack
+            hidden_channels = hidden_channels + input_channels
+
+        super(NeuralCDE, self).__init__()
+        self.input_channels = input_channels
+        self.hidden_channels = hidden_channels
+        self.output_channels = output_channels
+
+        self.func = func
+        self.initial = initial
+        if initial and not isinstance(func, ContinuousRNNConverter):  # very ugly hack
+            self.initial_network = torch.nn.Linear(input_channels, hidden_channels)
+        self.linear = torch.nn.Linear(hidden_channels, output_channels)
+
+    def extra_repr(self):
+        return "input_channels={}, hidden_channels={}, output_channels={}, initial={}" \
+               "".format(self.input_channels, self.hidden_channels, self.output_channels, self.initial)
+
+    def forward(self, x_times, times, coeffs, final_index, z0=None, stream=True, **kwargs):
+        """
+        Arguments:
+            times: The times of the observations for the input path X, e.g. as passed as an argument to
+                `controldiffeq.natural_cubic_spline_coeffs`.
+            coeffs: The coefficients describing the input path X, e.g. as returned by
+                `controldiffeq.natural_cubic_spline_coeffs`.
+            final_index: Each batch element may have a different final time. This defines the index within the tensor
+                `times` of where the final time for each batch element is.
+            z0: See the 'initial' argument to __init__.
+            stream: Whether to return the result of the Neural CDE model at all times (True), or just the final time
+                (False). Defaults to just the final time. The `final_index` argument is ignored if stream is True.
+            **kwargs: Will be passed to cdeint.
+
+        Returns:
+            If stream is False, then this will return the terminal time z_T. If stream is True, then this will return
+            all intermediate times z_t, for those t for which there was data.
+        """
+
+        # Extract the sizes of the batch dimensions from the coefficients
+        coeff, _, _, _ = coeffs
+        batch_dims = coeff.shape[:-2]
+        if not stream:
+            assert batch_dims == final_index.shape, "coeff.shape[:-2] must be the same as final_index.shape. " \
+                                                    "coeff.shape[:-2]={}, final_index.shape={}" \
+                                                    "".format(batch_dims, final_index.shape)
+
+        cubic_spline = controldiffeq.NaturalCubicSpline(times, coeffs)
+
+        if z0 is None:
+            assert self.initial, "Was not expecting to be given no value of z0."
+            if isinstance(self.func, ContinuousRNNConverter):  # still an ugly hack
+                z0 = torch.zeros(*batch_dims, self.hidden_channels, dtype=coeff.dtype, device=coeff.device)
+            else:
+                z0 = self.initial_network(cubic_spline.evaluate(times[0]))
+        else:
+            assert not self.initial, "Was expecting to be given a value of z0."
+            if isinstance(self.func, ContinuousRNNConverter):  # continuing adventures in ugly hacks
+                z0_extra = torch.zeros(*batch_dims, self.input_channels, dtype=z0.dtype, device=z0.device)
+                z0 = torch.cat([z0_extra, z0], dim=-1)
+
+        # Figure out what times we need to solve for
+        if stream:
+            t = times
+        else:
+            # faff around to make sure that we're outputting at all the times we need for final_index.
+            sorted_final_index, inverse_final_index = final_index.unique(sorted=True, return_inverse=True)
+            if 0 in sorted_final_index:
+                sorted_final_index = sorted_final_index[1:]
+                final_index = inverse_final_index
+            else:
+                final_index = inverse_final_index + 1
+            if len(times) - 1 in sorted_final_index:
+                sorted_final_index = sorted_final_index[:-1]
+            t = torch.cat([times[0].unsqueeze(0), times[sorted_final_index], times[-1].unsqueeze(0)])
+
+        # Switch default solver
+        if 'method' not in kwargs:
+            kwargs['method'] = 'rk4'
+        if kwargs['method'] == 'rk4':
+            if 'options' not in kwargs:
+                kwargs['options'] = {}
+            options = kwargs['options']
+            if 'step_size' not in options and 'grid_constructor' not in options:
+                time_diffs = times[1:] - times[:-1]
+                options['step_size'] = time_diffs.min().item()
+
+        # Actually solve the CDE
+        z_t = controldiffeq.cdeint(dX_dt=cubic_spline.derivative,
+                                   z0=z0,
+                                   func=self.func,
+                                   t=t,
+                                   **kwargs)
+
+        # Organise the output
+        if stream:
+            # z_t is a tensor of shape (times, ..., channels), so change this to (..., times, channels)
+            for i in range(len(z_t.shape) - 2, 0, -1):
+                z_t = z_t.transpose(0, i)
+        else:
+            # final_index is a tensor of shape (...)
+            # z_t is a tensor of shape (times, ..., channels)
+            final_index_indices = final_index.unsqueeze(-1).expand(z_t.shape[1:]).unsqueeze(0)
+            z_t = z_t.gather(dim=0, index=final_index_indices).squeeze(0)
+
+        # Linear map and return
+        pred_y = self.linear(z_t)
+        return pred_y
+
+
+class NeuralSDE(torch.nn.Module):
+    def __init__(self, func, input_channels, hidden_channels, output_channels, initial=True):
+        super().__init__()
+        self.func = func
+        self.initial = initial
+        self.initial_network = torch.nn.Linear(input_channels, hidden_channels)
+        
+        # self.linear = torch.nn.Linear(hidden_channels, output_channels)
+        self.linear = torch.nn.Sequential(torch.nn.Linear(hidden_channels, hidden_channels),
+                                          torch.nn.BatchNorm1d(hidden_channels), torch.nn.ReLU(), torch.nn.Dropout(0.1),
+                                          torch.nn.Linear(hidden_channels, output_channels))    
+        
+    def forward(self, times, coeffs, final_index, z0=None, stream=False, **kwargs):
+        # control module
+        self.func.set_X(*coeffs, times)
+        
+        if z0 is None:
+            assert self.initial, "Was not expecting to be given no value of z0."
+            if isinstance(self.func, ContinuousRNNConverter):  # still an ugly hack
+                z0 = torch.zeros(*batch_dims, self.hidden_channels, dtype=coeff.dtype, device=coeff.device)
+            else:
+                z0 = self.initial_network(self.func.X.evaluate(times[0]))
+        else:
+            assert not self.initial, "Was expecting to be given a value of z0."
+            if isinstance(self.func, ContinuousRNNConverter):  # continuing adventures in ugly hacks
+                z0_extra = torch.zeros(*batch_dims, self.input_channels, dtype=z0.dtype, device=z0.device)
+                z0 = torch.cat([z0_extra, z0], dim=-1)
+        
+        # Figure out what times we need to solve for
+        if stream:
+            t = times
+        else:
+            # faff around to make sure that we're outputting at all the times we need for final_index.
+            sorted_final_index, inverse_final_index = final_index.unique(sorted=True, return_inverse=True)
+            if 0 in sorted_final_index:
+                sorted_final_index = sorted_final_index[1:]
+                final_index = inverse_final_index
+            else:
+                final_index = inverse_final_index + 1
+            if len(times) - 1 in sorted_final_index:
+                sorted_final_index = sorted_final_index[:-1]
+            t = torch.cat([times[0].unsqueeze(0), times[sorted_final_index], times[-1].unsqueeze(0)])
+        
+        # Switch default solver
+        if 'method' not in kwargs:
+            kwargs['method'] = 'euler' # use 'srk' for more accurate solution for SDE 
+        if kwargs['method'] == 'euler':
+            if 'options' not in kwargs:
+                kwargs['options'] = {}
+            options = kwargs['options']
+            if 'dt' not in options:
+                time_diffs = times[1:] - times[:-1]
+                options['dt'] = max(time_diffs.min().item(), 1e-3)
+                        
+        time_diffs = times[1:] - times[:-1]
+        dt = max(time_diffs.min().item(), 1e-3)
+                
+        z_t = torchsde.sdeint(sde=self.func,
+                              y0=z0,
+                              ts=t,
+                              dt=dt,
+                              **kwargs)
+                       
+        # Organise the output
+        if stream:
+            # z_t is a tensor of shape (times, ..., channels), so change this to (..., times, channels)
+            for i in range(len(z_t.shape) - 2, 0, -1):
+                z_t = z_t.transpose(0, i)
+        else:
+            # final_index is a tensor of shape (...)
+            # z_t is a tensor of shape (times, ..., channels)
+            final_index_indices = final_index.unsqueeze(-1).expand(z_t.shape[1:]).unsqueeze(0)
+            z_t = z_t.gather(dim=0, index=final_index_indices).squeeze(0)
+            
+        # Linear map and return
+        pred_y = self.linear(z_t)
+        return pred_y
+    
+
+class NeuralSDE_forecasting(torch.nn.Module):
+    def __init__(self, func, input_channels, hidden_channels, output_channels, initial=True):
+        super().__init__()
+        self.func = func
+        self.initial = initial
+        self.initial_network = torch.nn.Linear(input_channels, hidden_channels)
+        
+        # self.linear = torch.nn.Linear(hidden_channels, output_channels)
+        self.linear = torch.nn.Sequential(torch.nn.Linear(hidden_channels, hidden_channels),
+                                          # torch.nn.BatchNorm1d(hidden_channels), torch.nn.ReLU(), torch.nn.Dropout(0.1),
+                                          torch.nn.ReLU(),
+                                          torch.nn.Linear(hidden_channels, output_channels))    
+        
+    def forward(self, x_times, times, coeffs, z0=None, stream=False, **kwargs):
+        # control module
+        # self.func.set_X(*coeffs, times)
+        self.func.set_X(torch.cat(coeffs, dim=-1), times)
+        # cubic_spline = controldiffeq.NaturalCubicSpline(x_times, coeffs)
+
+        if z0 is None:
+            assert self.initial, "Was not expecting to be given no value of z0."
+            if isinstance(self.func, ContinuousRNNConverter):  # still an ugly hack
+                z0 = torch.zeros(*batch_dims, self.hidden_channels, dtype=coeff.dtype, device=coeff.device)
+            else:
+                z0 = self.initial_network(self.func.X.evaluate(x_times[0]))
+        else:
+            assert not self.initial, "Was expecting to be given a value of z0."
+            if isinstance(self.func, ContinuousRNNConverter):  # continuing adventures in ugly hacks
+                z0_extra = torch.zeros(*batch_dims, self.input_channels, dtype=z0.dtype, device=z0.device)
+                z0 = torch.cat([z0_extra, z0], dim=-1)
+
+        t = times
+        # z0 = z0.relu()  # 增加
+        # Switch default solver
+        if 'method' not in kwargs:
+            kwargs['method'] = 'euler' # use 'srk' for more accurate solution for SDE 
+        if kwargs['method'] == 'euler':
+            if 'options' not in kwargs:
+                kwargs['options'] = {}
+            options = kwargs['options']
+            if 'dt' not in options:
+                time_diffs = times[1:] - times[:-1]
+                options['dt'] = max(time_diffs.min().item(), 1e-3)
+                        
+        # time_diffs = times[1:] - times[:-1]
+        dt = max(time_diffs.min().item(), 1e-3)
+                        
+        z_t = torchsde.sdeint(sde=self.func,
+                              y0=z0,
+                              ts=t,
+                              dt=dt,
+                              **kwargs)
+
+        for i in range(len(z_t.shape) - 2, 0, -1):
+            z_t = z_t.transpose(0, i)
+
+        # pred_y = self.linear(z_t[:,input_time-self.output_time:,:])
+        pred_y = self.linear(z_t)
+        return pred_y
+    
+        
+class Diffusion_model(torch.nn.Module):
+    def __init__(self, input_channels, hidden_channels, hidden_hidden_channels, num_hidden_layers, theta=1.0, sigma=1.0, input_option=0, noise_option=0):
+        """
+            - input_option 
+            - noise_option 
+        """
+        super().__init__()
+        self.sde_type = "ito"
+        self.noise_type = "diagonal" # or "scalar"
+        self.input_option = input_option
+        self.noise_option = noise_option
+        
+        self.input_channels = input_channels
+        self.hidden_channels = hidden_channels
+
+        # network
+        self.initial_network = torch.nn.Linear(input_channels, hidden_channels)
+
+        if self.input_option in [3,4,5,6]: # for time embedding
+            self.linear_in = torch.nn.Linear(hidden_channels+2, hidden_hidden_channels)
+        else:
+            self.linear_in = torch.nn.Linear(hidden_channels, hidden_hidden_channels)
+
+        if self.input_option in [2,4,6]: # for control embedding
+            self.emb = torch.nn.Linear(hidden_channels*2, hidden_channels)
+        else:
+            pass
+            
+        self.linears = torch.nn.ModuleList(torch.nn.Linear(hidden_hidden_channels, hidden_hidden_channels)
+                                           for _ in range(num_hidden_layers - 1))
+        # self.linear_out = torch.nn.Linear(hidden_hidden_channels, hidden_channels)
+        self.linear_out = torch.nn.Linear(hidden_hidden_channels, input_channels * hidden_channels)   # 此处做了修改
+
+        # parameter
+        self.theta = torch.nn.Parameter(torch.tensor([[theta]]), requires_grad=True) # scaling factor
+        if self.noise_option in [1,2,3]:
+            self.sigma = torch.nn.Parameter(torch.tensor([sigma]), requires_grad=True) # noise constant
+        if self.noise_option in [4,5,6]:
+            self.sigma_diag = torch.nn.Parameter(torch.tensor([sigma]*hidden_channels), requires_grad=True) # noise constant
+
+        # noise options 
+        if self.noise_option in [12,13]:
+            self.noise_t = torch.nn.Linear(2, hidden_channels)
+        if self.noise_option in [14,15]:
+            self.noise_y = torch.nn.Linear(hidden_channels+2, hidden_channels)
+        if self.noise_option in [16,17]:
+            self.noise_t = torch.nn.Sequential(torch.nn.Linear(2, hidden_channels), torch.nn.ReLU(), 
+                                               torch.nn.Linear(hidden_channels, hidden_channels))
+        if self.noise_option in [18,19]:
+            self.noise_y = torch.nn.Sequential(torch.nn.Linear(hidden_channels+2, hidden_channels), 
+                                               torch.nn.ReLU(), torch.nn.Linear(hidden_channels, hidden_channels))
+                
+    def set_X(self, coeffs, times):
+        self.coeffs = coeffs
+        self.times = times
+        self.X = torchcde.CubicSpline(self.coeffs, self.times)
+        self.dX_dt = self.X.derivative
+            
+    def f_sub(self, t, y):
+        Xt = self.X.evaluate(t)
+        Xt = self.initial_network(Xt)
+
+        # time embedding
+        if self.input_option in [3, 4, 5, 6]:
+            if t.dim() == 0:
+                t = torch.full_like(y[:,0], fill_value=t).unsqueeze(-1)
+            yy = self.linear_in(torch.cat((torch.sin(t), torch.cos(t), y), dim=-1))
+        else:
+            yy = self.linear_in(y)
+            
+        # input option
+        if self.input_option == 0:  # use control only
+            z = Xt
+        elif self.input_option in [1, 3, 5]:  # use latent
+            z = yy
+        elif self.input_option in [2, 4, 6]:  # use both
+            z = self.emb(torch.cat([yy, Xt], dim=-1))
+       
+        # NN
+        z = z.relu()
+        for linear in self.linears:
+            z = linear(z)
+            z = z.relu()
+        # z = self.linear_out(z)
+        z = self.linear_out(z).view(*z.shape[:-1], self.hidden_channels, self.input_channels)
+
+        if self.input_option in [5,6]: # geometric
+            # instead of z * y, using logistics
+            z = z * (1 - torch.nan_to_num(y).sigmoid())
+        else:
+            pass
+
+        z = z.tanh()
+        return z
+
+    def f(self, t, y):  # 添加了此处这个函数
+        # vector_field = VectorField(dX_dt=self.dX_dt, func=self.f1)
+        control_gradient = self.dX_dt(t)
+        # vector_field is of shape (..., hidden_channels, input_channels)
+        vector_field = self.f_sub(t, y)
+        # out is of shape (..., hidden_channels)
+        # (The squeezing is necessary to make the matrix-multiply properly batch in all cases)
+        out = (vector_field @ control_gradient.unsqueeze(-1)).squeeze(-1)
+        return out
+
+    def g(self, t, y):
+        if t.dim() == 0:
+            t = torch.full_like(y[:,0], fill_value=t).unsqueeze(-1)
+                    
+        ## define diffusion term
+        # None, identical to ODE/CDE
+        if self.noise_option == 0: # constant 0
+            noise = torch.zeros(y.size(0), y.size(1)).to(y.device)
+        
+        # Constant sigma # optimize (log val).exp() > 0
+        elif self.noise_option == 1: # constant sigma
+            noise = self.sigma.exp().expand(y.size(0), y.size(1))
+        elif self.noise_option == 2: # constant sigma * t
+            noise = self.sigma.exp().expand(y.size(0), y.size(1)) * t
+        elif self.noise_option == 3: # constant sigma * y
+            noise = self.sigma.exp().expand(y.size(0), y.size(1)) * y
+        elif self.noise_option == 4: # constant diagonal sigma
+            noise = self.sigma_diag.exp().repeat(y.size(0), 1)
+        elif self.noise_option == 5: # constant diagonal sigma * t
+            noise = self.sigma_diag.exp().repeat(y.size(0), 1) * t
+        elif self.noise_option == 6: # constant diagonal sigma * y
+            noise = self.sigma_diag.exp().repeat(y.size(0), 1) * y
+
+        # special cases
+        elif self.noise_option == 7: # holder continuity
+            noise = torch.sqrt(y)
+        elif self.noise_option == 8: # nonlipschitz continuity
+            noise = y**3
+        elif self.noise_option == 9: # nonlinear (sigmoid)
+            noise = y.sigmoid()
+        elif self.noise_option == 10: # nonlinear (relu)
+            noise = y.relu()
+        elif self.noise_option == 11: # complex
+            noise = t * y
+            
+        # Neural Network (lienar / nonlinear)
+        elif self.noise_option == 12: # NN(t)
+            tt = self.noise_t(torch.cat([torch.sin(t), torch.cos(t)], dim=-1))
+            noise = tt
+        elif self.noise_option == 13: # NN(t) * y
+            tt = self.noise_t(torch.cat([torch.sin(t), torch.cos(t)], dim=-1))
+            noise = tt * y
+        elif self.noise_option == 14: # NN(t,y) 
+            yy = self.noise_y(torch.cat([torch.sin(t), torch.cos(t), y], dim=-1))
+            noise = yy
+        elif self.noise_option == 15: # NN(t&y) * y
+            yy = self.noise_y(torch.cat([torch.sin(t), torch.cos(t), y], dim=-1))
+            noise = yy * y
+        elif self.noise_option == 16: # 2NN(t)
+            tt = self.noise_t(torch.cat([torch.sin(t), torch.cos(t)], dim=-1)).relu()
+            noise = tt
+        elif self.noise_option == 17: # 2NN(t) * y
+            tt = self.noise_t(torch.cat([torch.sin(t), torch.cos(t)], dim=-1)).relu()
+            noise = tt * y
+        elif self.noise_option == 18: # 2NN(t,y) 
+            yy = self.noise_y(torch.cat([torch.sin(t), torch.cos(t), y], dim=-1)).relu()
+            noise = yy
+        elif self.noise_option == 19: # 2NN(t,y) * y
+            yy = self.noise_y(torch.cat([torch.sin(t), torch.cos(t), y], dim=-1)).relu()
+            noise = yy * y
+
+        noise = self.theta.sigmoid() * torch.nan_to_num(noise) # bounding # ignore nan 
+        noise = noise.tanh()
+        return noise # diagonal noise
+        # return noise.unsqueeze(-1) # scalar noise
+        
