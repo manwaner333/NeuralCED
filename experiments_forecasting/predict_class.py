@@ -20,7 +20,7 @@ def _evaluate_metrics_forecasting(dataloader, model_cde, model_sde, x_times, tim
     with torch.no_grad():
         total_dataset_size = 0
         total_loss = 0
-        noise_cde_std = 0.002
+        noise_cde_std = 0.005
         noise_sde_std = 0.01
         true_y_cpus = []
         pred_sde_y_cpus = []
@@ -46,65 +46,109 @@ def _evaluate_metrics_forecasting(dataloader, model_cde, model_sde, x_times, tim
             scale_sde_tor = torch.full_like(pred_y_sde_filter, noise_sde_std)
             xs_sde_dist = Normal(loc=pred_y_sde_filter, scale=scale_sde_tor)
             log_sde_pxs = xs_sde_dist.log_prob(real_y_filter).mean()
-            # print(log_sde_pxs, label)
+            print(log_sde_pxs, label)
 
             scale_cde_tor = torch.full_like(pred_y_cde_filter, noise_cde_std)
             xs_cde_dist = Normal(loc=pred_y_cde_filter, scale=scale_cde_tor)
             log_cde_pxs = xs_cde_dist.log_prob(real_y_filter).mean()
-            # print(log_cde_pxs, label)
+            print(log_cde_pxs, label)
             # ipdb.set_trace()
 
             true_y = label
             true_y_cpus.append(true_y.detach().cpu())
 
             # sde
-            pred_sde_y = (log_sde_pxs >= (-50.0)).to(true_y.dtype).unsqueeze(0)
+            threshold_sde = -70.0
+            threshold_cde = -100.0
+            pred_sde_y = (log_sde_pxs >= threshold_sde).to(true_y.dtype).unsqueeze(0)
             pred_sde_y_pro = log_sde_pxs.unsqueeze(0)
             pred_sde_y_cpus.append(pred_sde_y.detach().cpu())
             thresholded_sde_ys.append(pred_sde_y_pro.detach().cpu())
 
-            pred_cde_y = (log_cde_pxs >= (-50.0)).to(true_y.dtype).unsqueeze(0)
+            pred_cde_y = (log_cde_pxs >= threshold_cde).to(true_y.dtype).unsqueeze(0)
             pred_cde_y_pro = log_cde_pxs.unsqueeze(0)
             pred_cde_y_cpus.append(pred_cde_y.detach().cpu())
             thresholded_cde_ys.append(pred_cde_y_pro.detach().cpu())
 
 
 
-            count += 1
-            if count > 5:
-                break
+            # count += 1
+            # if count > 5:
+            #     break
 
         true_y_cpus = torch.cat(true_y_cpus, dim=0).detach().cpu().numpy()
-
         # cde
         thresholded_cde_ys = torch.cat(thresholded_cde_ys, dim=0).detach().cpu().numpy()
         pred_cde_y_cpus = torch.cat(pred_cde_y_cpus, dim=0).detach().cpu().numpy()
-        accuracy_cde = sklearn.metrics.accuracy_score(true_y_cpus, pred_cde_y_cpus)
-        precision_cde = sklearn.metrics.precision_score(true_y_cpus, pred_cde_y_cpus)
-        recall_cde = sklearn.metrics.recall_score(true_y_cpus, pred_cde_y_cpus)
-        f1_cde = sklearn.metrics.f1_score(true_y_cpus, pred_cde_y_cpus)
-        precision_curve_cde, recall_curve_cde, _ = sklearn.metrics.precision_recall_curve(true_y_cpus, thresholded_cde_ys)
-        pr_auc_cde = sklearn.metrics.auc(recall_curve_cde, precision_curve_cde)
 
         # sde
         thresholded_sde_ys = torch.cat(thresholded_sde_ys, dim=0).detach().cpu().numpy()
         pred_sde_y_cpus = torch.cat(pred_sde_y_cpus, dim=0).detach().cpu().numpy()
-        accuracy_sde = sklearn.metrics.accuracy_score(true_y_cpus, pred_sde_y_cpus)
-        precision_sde = sklearn.metrics.precision_score(true_y_cpus, pred_sde_y_cpus)
-        recall_sde = sklearn.metrics.recall_score(true_y_cpus, pred_sde_y_cpus)
-        f1_sde = sklearn.metrics.f1_score(true_y_cpus, pred_sde_y_cpus)
-        precision_curve_sde, recall_curve_sde, _ = sklearn.metrics.precision_recall_curve(true_y_cpus, thresholded_sde_ys)
-        pr_auc_sde = sklearn.metrics.auc(recall_curve_sde, precision_curve_sde)
 
-        print('cde accuracy: {:.3},  cde precision: {:.3}, cde recall: {:.3} cde f1: {:.3}, cde auc: {:.3}, '
-        'sde accuracy: {:.3},  sde precision: {:.3}, sde recall: {:.3} sde f1: {:.3}, sde auc: {:.3}'
-        ''.format(accuracy_cde, precision_cde, recall_cde, f1_cde, pr_auc_cde, accuracy_sde, precision_sde,
-                  recall_sde, f1_sde, pr_auc_sde))
-
-
-        # ipdb.set_trace()
+        # save
+        np.save('results/true_y_cpus', true_y_cpus)
+        np.save('results/thresholded_cde_ys', thresholded_cde_ys)
+        np.save('results/pred_cde_y_cpus', pred_cde_y_cpus)
+        np.save('results/thresholded_sde_ys', thresholded_sde_ys)
+        np.save('results/pred_sde_y_cpus', pred_sde_y_cpus)
 
         return total_loss
+
+
+def evaluate_model():
+    true_y_cpus = np.load('results/true_y_cpus.npy')
+    thresholded_cde_ys = np.load('results/thresholded_cde_ys.npy')
+    pred_cde_y_cpus = np.load('results/pred_cde_y_cpus.npy')
+    thresholded_sde_ys = np.load('results/thresholded_sde_ys.npy')
+    pred_sde_y_cpus = np.load('results/pred_sde_y_cpus.npy')
+    # cde
+    accuracy_cde = sklearn.metrics.accuracy_score(true_y_cpus, pred_cde_y_cpus)
+    precision_cde = sklearn.metrics.precision_score(true_y_cpus, pred_cde_y_cpus)
+    recall_cde = sklearn.metrics.recall_score(true_y_cpus, pred_cde_y_cpus)
+    f1_cde = sklearn.metrics.f1_score(true_y_cpus, pred_cde_y_cpus)
+    precision_curve_cde, recall_curve_cde, _ = sklearn.metrics.precision_recall_curve(true_y_cpus, thresholded_cde_ys)
+    pr_auc_cde = sklearn.metrics.auc(recall_curve_cde, precision_curve_cde)
+
+
+    # sde
+    accuracy_sde = sklearn.metrics.accuracy_score(true_y_cpus, pred_sde_y_cpus)
+    precision_sde = sklearn.metrics.precision_score(true_y_cpus, pred_sde_y_cpus)
+    recall_sde = sklearn.metrics.recall_score(true_y_cpus, pred_sde_y_cpus)
+    f1_sde = sklearn.metrics.f1_score(true_y_cpus, pred_sde_y_cpus)
+    precision_curve_sde, recall_curve_sde, _ = sklearn.metrics.precision_recall_curve(true_y_cpus, thresholded_sde_ys)
+    pr_auc_sde = sklearn.metrics.auc(recall_curve_sde, precision_curve_sde)
+
+    print('cde accuracy: {:.3},  cde precision: {:.3}, cde recall: {:.3} cde f1: {:.3}, cde auc: {:.3}, '
+    'sde accuracy: {:.3},  sde precision: {:.3}, sde recall: {:.3} sde f1: {:.3}, sde auc: {:.3}'
+    ''.format(accuracy_cde, precision_cde, recall_cde, f1_cde, pr_auc_cde, accuracy_sde, precision_sde,
+              recall_sde, f1_sde, pr_auc_sde))
+
+
+def plot():
+    true_y_cpus = np.load('results/true_y_cpus.npy')
+    thresholded_cde_ys = np.load('results/thresholded_cde_ys.npy')
+    thresholded_sde_ys = np.load('results/thresholded_sde_ys.npy')
+
+
+    # 为不同的label指定不同的颜色
+    colors = np.where(true_y_cpus == 1, 'b', 'r')  # label为1时使用蓝色，为0时使用红色
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+    # 绘制散点图
+    ax1.scatter(range(len(true_y_cpus)), thresholded_cde_ys, c=colors, label='Blue: True, Red: False')
+    ax1.set_title('cde')
+    ax2.scatter(range(len(true_y_cpus)), thresholded_sde_ys, c=colors, label='Blue: True, Red: False')
+    ax2.set_title('sde')
+    # 添加图例
+    plt.legend()
+
+    # 添加标题和轴标签
+    # plt.title('Scatter Plot of y by Labels')
+    # plt.xlabel('Index')
+    # plt.ylabel('Value of y')
+
+    # 显示图形
+    # plt.show()
+    plt.savefig("results/calss.png")
 
 
 def main(
@@ -175,8 +219,9 @@ def main(
     x_times = x_times.to(device)
     times = times.to(device)
 
-    _evaluate_metrics_forecasting(test_dataloader, model_cde, model_sde, x_times, times, loss_fn, device, kwargs)
-
+    # _evaluate_metrics_forecasting(test_dataloader, model_cde, model_sde, x_times, times, loss_fn, device, kwargs)
+    # evaluate_model()
+    plot()
 
 if __name__ == "__main__":
     # main(method=args.method)

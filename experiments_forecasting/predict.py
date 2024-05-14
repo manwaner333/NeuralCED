@@ -42,8 +42,10 @@ def _evaluate_metrics_forecasting(dataloader, model_cde, model_sde, x_times, tim
             plt.plot(x, real_y_1, label='real', color='blue', marker='o')  # 第一条折线
             plt.plot(x, pred_y_cde_1, label='pred_cde', color='red', marker='s')  # 第二条折线
             plt.plot(x, pred_y_sde_1, label='pred_sde', color='orange', marker='s')
-            plt.legend()
-            plt.show()
+            # plt.legend()
+            # plt.show()
+            plt.savefig("results/real_predict.png")
+            break
 
             qingli = 3
 
