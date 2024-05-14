@@ -91,6 +91,6 @@ def main(
 if __name__ == "__main__":
     # main(method=args.method)
     main(hidden_channels=16, hidden_hidden_channels=16, num_hidden_layers=4, lr=0.001, method="euler",
-         missing_rate=0.0, time_seq=50, y_seq=10, intensity=False, max_epochs=1000, step_mode='valloss',
+         missing_rate=0.0, time_seq=50, y_seq=10, intensity=False, max_epochs=500, step_mode='valloss',
          model_name="naivesde")    # ncde, naivesde
 

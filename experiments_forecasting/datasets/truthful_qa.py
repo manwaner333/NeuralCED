@@ -21,7 +21,7 @@ def download():
     # scaler = StandardScaler()
     scaler = MinMaxScaler()
     pca = PCA(n_components=20)
-    with open("datasets/data/truthful_qa/answer_truthful_qa_300.bin", 'rb') as f:
+    with open("datasets/data/truthful_qa/answer_truthful_qa.bin", 'rb') as f:
         keys_val = pickle.load(f)
 
     question_ids = []
@@ -129,7 +129,7 @@ def _process_data(X_times, y, xy, question_ids, labels, time_intensity=False):
     test_labels = []
     true_index = np.where(labels == 1)[0]
     false_index = np.where(labels == 0)[0]
-    for idx in true_index[0:200]:
+    for idx in true_index[0:100]:
         train_x.append(X_times[idx])
         train_y.append(y[idx])
         train_xy.append(xy[idx])
@@ -138,7 +138,7 @@ def _process_data(X_times, y, xy, question_ids, labels, time_intensity=False):
         train_question_ids.append(question_ids[idx])
         train_labels.append(labels[idx])
 
-    for idx in true_index[200:]:
+    for idx in true_index[100:]:
         test_x.append(X_times[idx])
         test_y.append(y[idx])
         test_xy.append(xy[idx])
