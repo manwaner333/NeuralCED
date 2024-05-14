@@ -53,7 +53,7 @@ def download():
         for o2 in answer_hidden_states:
             x_y_all_flattened.append(o2)
     x_y_all_flattened_0_1 = scaler.fit_transform(x_y_all_flattened)
-    x_y_all_flattened_reduce = pca.fit_transform(x_y_all_flattened_0_1)
+    x_y_all_flattened_reduce = scaler.fit_transform(pca.fit_transform(x_y_all_flattened_0_1))
 
     x = []
     y = []
