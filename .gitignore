@@ -17,3 +17,4 @@ Hallucination/processed_datasets
 experiments_test/*
 experiments_test
 Hallucination/datasets/truthful_qa.json
+imgs/*
