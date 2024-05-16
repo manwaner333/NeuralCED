@@ -219,9 +219,9 @@ def main(
     x_times = x_times.to(device)
     times = times.to(device)
 
-    # _evaluate_metrics_forecasting(test_dataloader, model_cde, model_sde, x_times, times, loss_fn, device, kwargs)
+    _evaluate_metrics_forecasting(test_dataloader, model_cde, model_sde, x_times, times, loss_fn, device, kwargs)
     # evaluate_model()
-    plot()
+    # plot()
 
 if __name__ == "__main__":
     # main(method=args.method)

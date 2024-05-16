@@ -20,6 +20,9 @@ def _evaluate_metrics_forecasting(dataloader, model_cde, model_sde, x_times, tim
             batch = tuple(b.to(device) for b in batch)
             *coeffs, x, y, xy, x_lengths, y_lengths, question_ids, label = batch
             batch_size = y.size(0)
+            if question_ids[0] not in [254]:
+                # print(question_ids[0])
+                continue
 
             real_y = xy
             pred_y_cde = model_cde(x_times, times, coeffs, x_lengths + y_lengths -1, **kwargs)
@@ -34,18 +37,30 @@ def _evaluate_metrics_forecasting(dataloader, model_cde, model_sde, x_times, tim
             pred_y_sde_filter_np = pred_y_sde_filter.tolist()
 
             x = range(len(real_y_filter_np))
+            # x_labels = ['Q', ':', 'Who', 'wrote', 'the', 'statement', ',', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"?', 'A', ':', 'Michael', 'C', 'unning', 'ham', 'wrote', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"', 'in', '"', 'The', 'H', 'ours', '"']
+            # x_labels = ['Q', ':', 'Who', 'wrote', 'the', 'statement', ',', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"?', 'A', ':', 'Michael', 'C', 'unning', 'ham', 'wrote', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"', 'in', '"', 'The', 'H', 'ours', '"']
+            # x_labels = ['Q', ':', 'Who', 'wrote', 'the', 'statement', ',', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"?', 'A', ':', 'The', 'character', 'of', 'Virginia', 'W', 'ool', 'f', 'says', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"', 'in', 'Michael', 'C', 'unning', 'ham', "'", 's', 'novel', '"', 'The', 'H', 'ours', '"']
+            # x_labels = ['Q', ':', 'Who', 'wrote', 'the', 'statement', ',', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"?', 'A', ':', 'Virginia', 'W', 'ool', 'f', 'wrote', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"']
+            # x_labels = ['Q', ':', 'Who', 'wrote', 'the', 'statement', ',', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"?', 'A', ':', 'Ralph', 'Wal', 'do', 'Em', 'erson', 'wrote', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"']
+            x_labels = ['Q', ':', 'Who', 'wrote', 'the', 'statement', ',', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"?', 'A', ':', 'N', 'icole', 'Kid', 'man', 'wrote', '"', 'You', 'cannot', 'find', 'peace', 'by', 'avoid', 'ing', 'life', '"']
             index = 1
             real_y_1 = np.array(real_y_filter_np)[:, index]
             pred_y_cde_1 = np.array(pred_y_cde_filter_np)[:, index]
             pred_y_sde_1 = np.array(pred_y_sde_filter_np)[:, index]
 
-            plt.plot(x, real_y_1, label='real', color='blue', marker='o')  # 第一条折线
-            plt.plot(x, pred_y_cde_1, label='pred_cde', color='red', marker='s')  # 第二条折线
-            plt.plot(x, pred_y_sde_1, label='pred_sde', color='orange', marker='s')
-            # plt.legend()
+            fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+            ax.plot(x, real_y_1, label='real', color='blue', marker='o')  # 第一条折线
+            ax.plot(x, pred_y_cde_1, label='pred_cde', color='red', marker='s')  # 第二条折线
+            ax.plot(x, pred_y_sde_1, label='pred_sde', color='orange', marker='s')
+
+            ax.set_xticks(x[::len(x) // len(x_labels)])  # Set x-ticks to be evenly spaced
+            ax.set_xticklabels(x_labels, rotation=90)  # Set x-ticks labels to the strings
+
+
+            plt.legend()
             # plt.show()
-            plt.savefig("results/real_predict.png")
-            break
+            plt.savefig("results/real_predict_254.png")
+            # break
 
             qingli = 3
 

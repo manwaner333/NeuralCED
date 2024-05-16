@@ -1,7 +1,7 @@
 # import uea
-import sepsis
+# import sepsis
 import os
-import ihad
+# import ihad
 import truthful_qa
 import numpy as np
 import torch
@@ -25,4 +25,4 @@ torch.manual_seed(42)
 # sepsis.main(intensity=True, device='cuda', model_name='ncde', hidden_channels=49, hidden_hidden_channels=49, num_hidden_layers=4)
 # ihad.main(intensity=True, device='cuda', model_name='ncde', hidden_channels=15, hidden_hidden_channels=15, num_hidden_layers=4)
 # ihad.main(intensity=False, device='cuda', model_name='ncde', hidden_channels=15, hidden_hidden_channels=15, num_hidden_layers=4)
-truthful_qa.main(intensity=False, device='cuda', model_name='ncde', hidden_channels=15, hidden_hidden_channels=15, num_hidden_layers=4)
+truthful_qa.main(intensity=False, device='cuda', model_name='ncde', hidden_channels=256, hidden_hidden_channels=256, num_hidden_layers=4)

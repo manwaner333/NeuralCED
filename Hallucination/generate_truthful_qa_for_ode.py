@@ -21,15 +21,15 @@ if __name__ == "__main__":
     idx = 0
     for ele in tqdm(data_dict):
         question = ele["question"]
-        best_answer = ele["best_answer"]
-        label = 'ACCURATE'
-        new_file.write(json.dumps({
-            "question_id": idx,
-            "question": question,
-            "response": best_answer,
-            "label": label
-        }) + "\n")
-        idx += 1
+        # best_answer = ele["best_answer"]
+        # label = 'ACCURATE'
+        # new_file.write(json.dumps({
+        #     "question_id": idx,
+        #     "question": question,
+        #     "response": best_answer,
+        #     "label": label
+        # }) + "\n")
+        # idx += 1
         for ans in ele['correct_answers']:
             label = 'ACCURATE'
             new_file.write(json.dumps({

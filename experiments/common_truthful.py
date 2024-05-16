@@ -56,7 +56,7 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
         thresholded_ys = []
         for batch in dataloader:
             batch = tuple(b.to(device) for b in batch)
-            *coeffs, true_y, lengths, question_idxs = batch
+            *coeffs, X, true_y, lengths, question_idxs = batch
             batch_size = true_y.size(0)
             pred_y = model(times, coeffs, lengths, **kwargs)
 
@@ -142,7 +142,7 @@ def _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times,
             if breaking:
                 break
             with _SuppressAssertions(tqdm_range):
-                *train_coeffs, train_y, lengths, question_idxs = batch
+                *train_coeffs, X, train_y, lengths, question_idxs = batch
                 pred_y = model(times, train_coeffs, lengths, **kwargs)
                 loss = loss_fn(pred_y, train_y)
                 loss.backward()
