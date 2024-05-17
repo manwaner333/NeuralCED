@@ -21,7 +21,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 np.random.seed(42)
 torch.manual_seed(42)
-
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(42)
 
 def split_list(lst, n):
     """Split a list into n (roughly) equal-sized chunks"""
@@ -99,8 +100,8 @@ def eval_model(args):
     answers_file = os.path.expanduser(args.answers_file)
     os.makedirs(os.path.dirname(answers_file), exist_ok=True)
     responses = {}
-    system_prompt = "You are a helpful, respectful and honest assistant with a deep knowledge of natural language processing. Always answer as helpfully as possible. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\n"
-
+    # system_prompt = "You are a helpful, respectful and honest assistant with a deep knowledge of natural language processing. Always answer as helpfully as possible. If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.\n"
+    system_prompt = "Always answer as helpfully as possible."
     for line in tqdm(questions):
         idx = line["question_id"]
         question = line['question']
@@ -110,6 +111,7 @@ def eval_model(args):
         combined_tokens = {}
 
         prompt = system_prompt + "Q: {}".format(question) + "A: {}".format(response)
+        # prompt = "Q: {}".format(question) + "A: {}".format(response)
         tokenizer.pad_token = tokenizer.eos_token
         encoded_input = tokenizer(prompt, return_tensors='pt', padding=True, truncation=True).to(device)
         input_ids = encoded_input['input_ids']
@@ -124,7 +126,8 @@ def eval_model(args):
             )
         hidden_layer = 32
         hidden_states = model_outputs['hidden_states'][hidden_layer][0]
-
+        print(hidden_states)
+        print(hidden_states.shape)
         total_tokens = []
         for t in range(input_ids.shape[1]):
             total_gen_tok_id = input_ids[:, t]

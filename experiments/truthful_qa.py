@@ -21,7 +21,7 @@ class InitialValueNetwork(torch.nn.Module):
 
 
 def main(intensity,                                                               # Whether to include intensity or not
-         device='cuda', max_epochs=200, pos_weight=10, *,                         # training parameters
+         device='cuda', max_epochs=50, pos_weight=10, *,                         # training parameters
          model_name, hidden_channels, hidden_hidden_channels, num_hidden_layers,  # model parameters
          dry_run=False,
          **kwargs):                                                               # kwargs passed on to cdeint
@@ -38,7 +38,7 @@ def main(intensity,                                                             
                                                                                         time_intensity,
                                                                                         batch_size)
 
-    input_channels = 1 + (1 + time_intensity) * 10
+    input_channels = 1 + (1 + time_intensity) * 512
     make_model = common_truthful.make_model(model_name, input_channels, 1, hidden_channels,
                                    hidden_hidden_channels, num_hidden_layers, use_intensity=intensity, initial=True)  # False
 

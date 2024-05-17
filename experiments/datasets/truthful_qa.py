@@ -21,16 +21,20 @@ data_loc = base_base_loc / 'truthful_qa/training_setA/training'
 
 
 def download():
-    pca = PCA(n_components=10)
+    pca = PCA(n_components=512)
     with open("datasets/data/truthful_qa/answer_truthful_qa.bin", 'rb') as f:
         keys_val = pickle.load(f)
 
     hidden_states = []
     labels = []
     question_ids = []
+    tokens = []
     for idx, ele in keys_val.items():
         sub_hidden_states = []
+        token_sub = []
         question_id = ele['question_id']
+        token_sub.extend(ele['tokens']['ques'])
+        token_sub.extend(ele['tokens']['answer'])
         question_hidden_states = ele['hidden_states']['ques']
         answer_hidden_states = ele['hidden_states']['answer']
         if np.isnan(question_hidden_states).any():
@@ -47,6 +51,7 @@ def download():
             flag = 1
         labels.append(flag)
         question_ids.append(question_id)
+        tokens.append(token_sub)
 
     x_all = hidden_states
     y = labels
@@ -130,7 +135,7 @@ def get_data(static_intensity, time_intensity, batch_size):
                          val_final_index=val_final_index, test_final_index=test_final_index,
                          train_question_ids=train_question_ids, val_question_ids=val_question_ids,
                          train_X=train_X, val_X=val_X, test_X=test_X, test_question_ids=test_question_ids)
-
+    print(len(train_X), len(val_X), len(test_X))
     times, train_dataloader, val_dataloader, test_dataloader = common_truthful.wrap_data(times, train_coeffs, val_coeffs,
                                                                                 test_coeffs, train_X, val_X, test_X, train_y, val_y, test_y,
                                                                                 train_final_index, val_final_index,

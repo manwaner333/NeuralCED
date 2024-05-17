@@ -33,7 +33,7 @@ def split_data(tensor, stratify):
                                                                                   stratify=stratify)
 
     val_tensor, test_tensor = sklearn.model_selection.train_test_split(testval_tensor,
-                                                                       train_size=0.5,
+                                                                       train_size=0.1,
                                                                        random_state=1,
                                                                        shuffle=True,
                                                                        stratify=testval_stratify)
@@ -53,7 +53,7 @@ def normalise_data(X, y):
 
 
 def preprocess_data(times, X, y, final_index, question_ids, append_times, append_intensity):
-    # X = normalise_data(X, y)
+    X = normalise_data(X, y)
 
     # Append extra channels together. Note that the order here: time, intensity, original, is important, and some models
     # depend on that order.

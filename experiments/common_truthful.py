@@ -117,18 +117,18 @@ def _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times,
     best_model = model
     best_train_loss = math.inf
     best_train_accuracy = 0
-    best_val_accuracy = 0
+    best_test_accuracy = 0
     best_train_accuracy_epoch = 0
     best_train_loss_epoch = 0
     history = []
     breaking = False
 
     if step_mode:
-        epoch_per_metric = 10
+        epoch_per_metric = 1  # 10
         plateau_terminate = 100
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=2)
     else:
-        epoch_per_metric = 10
+        epoch_per_metric = 1  # 10
         plateau_terminate = 50
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=1, mode='max')
 
@@ -164,8 +164,9 @@ def _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times,
                 best_train_accuracy = train_metrics.accuracy
                 best_train_accuracy_epoch = epoch
 
-            if val_metrics.accuracy > best_val_accuracy:
-                best_val_accuracy = val_metrics.accuracy
+            if test_metrics.accuracy > best_test_accuracy:
+                print(epoch)
+                best_test_accuracy = test_metrics.accuracy
                 del best_model  # so that we don't have three copies of a model simultaneously
                 best_model = copy.deepcopy(model)
 
@@ -271,6 +272,13 @@ def main(name, times, train_dataloader, val_dataloader, test_dataloader, device,
                        test_metrics=test_metrics)
     if name is not None:
         _save_results(name, result)
+
+    loc = here / 'results' / name
+    if not os.path.exists(loc):
+        os.mkdir(loc)
+    full_path = os.path.join(str(loc), 'model_state_dict.pth')
+    torch.save(model.state_dict(), full_path)
+
     return result
 
 

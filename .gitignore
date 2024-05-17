@@ -15,8 +15,10 @@ experiments_forecasting.zip
 experiments_forecasting/results
 Hallucination/datasets_local/dataset_v3.json
 Hallucination/datasets_local/wiki_bio_info.csv
+Hallucination/datasets_local/truthful_qa_ex.json
 Hallucination/datasets_local/truthful_qa.json
-Hallucination/datasets_local/answer_truthful_qa.bin
+Hallucination/datasets_local/*
+experiments/datasets/data/truthful_qa/answer_truthful_qa_remote.bin
 Hallucination/processed_datasets
 experiments_test/*
 experiments_test
