@@ -66,12 +66,8 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, device, kwargs):
         pr_auc = sklearn.metrics.auc(recall_curve, precision_curve)
 
         res = {"question_idxs": question_idxs, "true_y_cpus": true_y_cpus, "thresholded_ys": thresholded_ys, "pred_y_cpus": pred_y_cpus}
-        with open('data.pkl', 'wb') as f:
+        with open('results/data.pkl', 'wb') as f:
             pickle.dump(res, f)
-
-        # 从文件加载
-        with open('data.pkl', 'rb') as f:
-            loaded_data = pickle.load(f)
 
         print('Test accuracy: {:.3} Test precision: {:.3} Test recall: {:.3} Test f1: {:.3} Test auc: {:.3}'
               .format(accuracy, precision, recall, f1, pr_auc))
@@ -127,5 +123,7 @@ def main(intensity,                                                             
 
 
 if __name__ == "__main__":
-    main(intensity=False, device='cuda', model_name='ncde', hidden_channels=256, hidden_hidden_channels=256,
-                     num_hidden_layers=4)
+    # main(intensity=False, device='cuda', model_name='ncde', hidden_channels=256, hidden_hidden_channels=256,
+    #                  num_hidden_layers=4)
+    with open('results/truthful_qa_nointensity/data.pkl', 'rb') as f:
+        loaded_data = pickle.load(f)
