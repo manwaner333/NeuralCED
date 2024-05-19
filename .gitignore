@@ -27,3 +27,7 @@ imgs/*
 experiments_sde/datasets/data
 experiments_sde/datasets/processed_data
 experiments_sde/results
+
+experiments_ode/datasets/data
+experiments_ode/datasets/processed_data
+experiments_ode/results
