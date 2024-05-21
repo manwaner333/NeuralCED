@@ -20,7 +20,6 @@ Hallucination/datasets_local/truthful_qa.json
 Hallucination/datasets_local/truthful_qa.json
 Hallucination/datasets_local/answer_truthful_qa.bin
 Hallucination/datasets_local/*
-Hallucination
 experiments/datasets/data/truthful_qa/answer_truthful_qa_remote.bin
 Hallucination/processed_datasets
 experiments_test/*

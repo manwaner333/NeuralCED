@@ -33,14 +33,12 @@ def main(intensity, device='cuda', max_epochs=50, pos_weight=10, *,
     # via the use_intensity parameter, though.
     time_intensity = intensity or (model_name in ('odernn', 'dt', 'decay'))
 
-    if dataset_name in ["company"]:
-        times, train_dataloader, val_dataloader, test_dataloader = datasets.main.get_data(dataset_name, static_intensity,
-                                                                                        time_intensity,
-                                                                                        batch_size, num_dim)
-    else:
-        a = 3
 
-    input_channels = 1 + (1 + time_intensity) * 10
+    times, train_dataloader, val_dataloader, test_dataloader = datasets.main.get_data(dataset_name, static_intensity,
+                                                                                    time_intensity,
+                                                                                    batch_size, num_dim)
+
+    input_channels = 1 + (1 + time_intensity) * num_dim
     make_model = common.make_model(model_name, input_channels, 1, hidden_channels,
                                    hidden_hidden_channels, num_hidden_layers, use_intensity=intensity, initial=True)  # False
 
@@ -53,8 +51,7 @@ def main(intensity, device='cuda', max_epochs=50, pos_weight=10, *,
 
 
     intensity_str = '_intensity' if intensity else '_nointensity'
-    if dataset_name in ["company"]:
-        name = dataset_name + '_' + model_name + intensity_str
+    name = dataset_name + '_' + model_name + "_7b_" + intensity_str
 
 
     num_classes = 2

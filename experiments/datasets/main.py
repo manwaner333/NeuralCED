@@ -16,10 +16,7 @@ here = pathlib.Path(__file__).resolve().parent
 # 暂时用一下
 def download(dataset_name, num_dim):
     pca = PCA(n_components=num_dim)
-    if dataset_name == "company":
-        file_name = "datasets/data/company/answer_company.bin"
-    else:
-        file_name = "aaaaa"
+    file_name = "datasets/data/" + dataset_name + "/" + "answer_" + dataset_name + ".bin"
 
     with open(file_name, 'rb') as f:
         keys_val = pickle.load(f)
@@ -90,10 +87,8 @@ def _process_data(X_times, y, question_ids, time_intensity):
 
 def get_data(dataset_name, static_intensity, time_intensity, batch_size, num_dim):
     base_base_loc = here / 'processed_data'
-    if dataset_name == "company":
-        loc = base_base_loc / ('company' + ('_staticintensity' if static_intensity else '_nostaticintensity') + ('_timeintensity' if time_intensity else '_notimeintensity'))
-    else:
-        loc = "aaa"
+    loc = base_base_loc / (dataset_name + ('_staticintensity' if static_intensity else '_nostaticintensity') + ('_timeintensity' if time_intensity else '_notimeintensity'))
+
     if os.path.exists(loc):
         tensors = common.load_data(loc)
         times = tensors['times']
