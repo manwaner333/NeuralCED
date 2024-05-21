@@ -110,7 +110,7 @@ def eval_model(args):
         combined_hidden_states = {}
         combined_tokens = {}
 
-        prompt = system_prompt + question
+        prompt = system_prompt + "Q: {}".format(question) + "A: {}".format(response)
         # prompt = "Q: {}".format(question) + "A: {}".format(response)
         tokenizer.pad_token = tokenizer.eos_token
         encoded_input = tokenizer(prompt, return_tensors='pt', padding=True, truncation=True).to(device)
@@ -126,8 +126,8 @@ def eval_model(args):
             )
         hidden_layer = 32
         hidden_states = model_outputs['hidden_states'][hidden_layer][0]
-        # print(hidden_states)
-        # print(hidden_states.shape)
+        print(hidden_states)
+        print(hidden_states.shape)
         total_tokens = []
         for t in range(input_ids.shape[1]):
             total_gen_tok_id = input_ids[:, t]
@@ -146,14 +146,31 @@ def eval_model(args):
                 break
         i2 = i2 + 1
 
-        question_start_idx = i1
-        question_end_idx = i2
+        question_start_idx = i1 - 2
+        question_end_idx = i2 + 2
         ques_tokens_len = i2 - i1 + 1
         ques_hidden_states = hidden_states[question_start_idx:question_end_idx + 1, :]
         combined_hidden_states["ques"] = ques_hidden_states.to(torch.float32).detach().cpu().numpy().tolist()
         combined_tokens["ques"] = total_tokens[question_start_idx:question_end_idx + 1]
 
-        if (question_start_idx == 9) and (question_end_idx == len(total_tokens) - 1) and (not torch.isnan(ques_hidden_states).any()):
+        sentence_tf = "".join(response.split(" "))
+        xarr = [i for i in range(len(total_tokens))]
+        for i1 in xarr:
+            mystring = "".join(total_tokens[i1:])
+            if sentence_tf not in mystring:
+                break
+        i1 = i1 - 1
+        for i2 in xarr[::-1]:
+            mystring = "".join(total_tokens[i1:i2 + 1])
+            if sentence_tf not in mystring:
+                break
+        i2 = i2 + 1
+        answer_start_idx = i1
+        answer_end_idx = i2
+        ans_hidden_states = hidden_states[answer_start_idx:answer_end_idx + 1, :]
+        combined_hidden_states["answer"] = ans_hidden_states.to(torch.float32).detach().cpu().numpy().tolist()
+        combined_tokens["answer"] = total_tokens[answer_start_idx:answer_end_idx+1]
+        if (answer_start_idx == question_end_idx + 1) and (answer_end_idx == len(total_tokens) - 1) and (not torch.isnan(ans_hidden_states).any()):
             output = {"question_id": idx,
                       "question": question,
                       "response": response,
@@ -164,9 +181,9 @@ def eval_model(args):
             responses[idx] = output
         else:
             print("idx")
-            print(question_start_idx == 9)
-            print(question_end_idx == len(total_tokens) - 1)
-            print(not torch.isnan(ques_hidden_states).any())
+            print(answer_start_idx == question_end_idx + 1)
+            print(answer_end_idx == len(total_tokens) - 1)
+            print(torch.isnan(ans_hidden_states).any())
 
     with open(answers_file, 'wb') as file:
         pickle.dump(responses, file)
@@ -176,8 +193,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate new csv with embeddings.")
     parser.add_argument("--model",
                         help="Name of the language model to use: '6.7b', '2.7b', '1.3b', '350m'")
-    parser.add_argument("--question-file", type=str, default="datasets_local/company.json")
-    parser.add_argument("--answers-file", type=str, default="datasets_local/answer_company.bin")
+    parser.add_argument("--question-file", type=str, default="datasets_local/truthful_qa.json")
+    parser.add_argument("--answers-file", type=str, default="datasets_local/answer_truthful_qa.bin")
     parser.add_argument("--num-chunks", type=int, default=1)
     parser.add_argument("--chunk-idx", type=int, default=0)
     parser.add_argument("--layers", nargs='*',

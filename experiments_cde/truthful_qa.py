@@ -38,9 +38,7 @@ def main(intensity,                                                             
                                                                                         time_intensity,
                                                                                         batch_size)
 
-    input_channels = 1 + (1 + time_intensity) * 10 # 512
-    ode_hidden_hidden_channels = 40
-    output_time = 10
+    input_channels = 1 + (1 + time_intensity) * 512  # 10
     make_model = common_truthful.make_model(model_name, input_channels, 1, hidden_channels,
                                    hidden_hidden_channels, num_hidden_layers, use_intensity=intensity, initial=True)  # False
 
@@ -58,7 +56,7 @@ def main(intensity,                                                             
         name = 'truthful_qa' + intensity_str
     num_classes = 2
     return common_truthful.main(name, times, train_dataloader, val_dataloader, test_dataloader, device,
-                       make_model, num_classes, max_epochs, lr, kwargs, pos_weight=torch.tensor(pos_weight),
+                       new_make_model, num_classes, max_epochs, lr, kwargs, pos_weight=torch.tensor(pos_weight),
                        step_mode=True)  # new_make_model
 
 

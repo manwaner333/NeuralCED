@@ -33,7 +33,7 @@ def split_data(tensor, stratify):
                                                                                   stratify=stratify)
 
     val_tensor, test_tensor = sklearn.model_selection.train_test_split(testval_tensor,
-                                                                       train_size=0.1,
+                                                                       train_size=0.5,
                                                                        random_state=1,
                                                                        shuffle=True,
                                                                        stratify=testval_stratify)
@@ -52,7 +52,7 @@ def normalise_data(X, y):
     return out
 
 
-def preprocess_data(times, X, y, final_index, question_ids, append_times, append_intensity):
+def preprocess_data(times, X, y, final_index, append_times, append_intensity):
     X = normalise_data(X, y)
 
     # Append extra channels together. Note that the order here: time, intensity, original, is important, and some models
@@ -73,7 +73,6 @@ def preprocess_data(times, X, y, final_index, question_ids, append_times, append
     train_X, val_X, test_X = split_data(X, y)
     train_y, val_y, test_y = split_data(y, y)
     train_final_index, val_final_index, test_final_index = split_data(final_index, y)
-    train_question_ids, val_question_ids, test_question_ids = split_data(question_ids, y)
 
     train_coeffs = controldiffeq.natural_cubic_spline_coeffs(times, train_X)
     val_coeffs = controldiffeq.natural_cubic_spline_coeffs(times, val_X)
@@ -82,18 +81,15 @@ def preprocess_data(times, X, y, final_index, question_ids, append_times, append
     in_channels = X.size(-1)
 
     return (times, train_coeffs, val_coeffs, test_coeffs, train_y, val_y, test_y, train_final_index, val_final_index,
-            test_final_index, train_question_ids, val_question_ids, test_question_ids, train_X, val_X, test_X, in_channels)
+            test_final_index, in_channels)
 
 
-def wrap_data(times, train_coeffs, val_coeffs, test_coeffs, train_X, val_X, test_X, train_y, val_y, test_y, train_final_index, val_final_index,
-              test_final_index, train_question_ids, val_question_ids, test_question_ids, device, batch_size, num_workers=0):  # num_worker=4
+def wrap_data(times, train_coeffs, val_coeffs, test_coeffs, train_y, val_y, test_y, train_final_index, val_final_index,
+              test_final_index, device, batch_size, num_workers=0):  # num_worker=4
     times = times.to(device)
     train_coeffs = tuple(coeff.to(device) for coeff in train_coeffs)
     val_coeffs = tuple(coeff.to(device) for coeff in val_coeffs)
     test_coeffs = tuple(coeff.to(device) for coeff in test_coeffs)
-    train_X = train_X.to(device)
-    val_X = val_X.to(device)
-    test_X = test_X.to(device)
     train_y = train_y.to(device)
     val_y = val_y.to(device)
     test_y = test_y.to(device)
@@ -101,9 +97,9 @@ def wrap_data(times, train_coeffs, val_coeffs, test_coeffs, train_X, val_X, test
     val_final_index = val_final_index.to(device)
     test_final_index = test_final_index.to(device)
 
-    train_dataset = torch.utils.data.TensorDataset(*train_coeffs, train_X, train_y, train_final_index, train_question_ids)
-    val_dataset = torch.utils.data.TensorDataset(*val_coeffs, val_X, val_y, val_final_index, val_question_ids)
-    test_dataset = torch.utils.data.TensorDataset(*test_coeffs, test_X, test_y, test_final_index, test_question_ids)
+    train_dataset = torch.utils.data.TensorDataset(*train_coeffs, train_y, train_final_index)
+    val_dataset = torch.utils.data.TensorDataset(*val_coeffs, val_y, val_final_index)
+    test_dataset = torch.utils.data.TensorDataset(*test_coeffs, test_y, test_final_index)
 
     train_dataloader = dataloader(train_dataset, batch_size=batch_size, num_workers=num_workers)
     val_dataloader = dataloader(val_dataset, batch_size=batch_size, num_workers=num_workers)

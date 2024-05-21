@@ -53,15 +53,15 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
         total_loss = 0
         true_y_cpus = []
         pred_y_cpus = []
-        thresholded_ys = []
+
         for batch in dataloader:
             batch = tuple(b.to(device) for b in batch)
-            *coeffs, X, true_y, lengths, question_idxs = batch
+            *coeffs, true_y, lengths = batch
             batch_size = true_y.size(0)
             pred_y = model(times, coeffs, lengths, **kwargs)
 
             if num_classes == 2:
-                thresholded_y = (pred_y >= 0.5).to(true_y.dtype)
+                thresholded_y = (pred_y > 0).to(true_y.dtype)
             else:
                 thresholded_y = torch.argmax(pred_y, dim=1)
             true_y_cpu = true_y.detach().cpu()
@@ -70,7 +70,6 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
                 # Assume that our datasets aren't so large that this breaks
                 true_y_cpus.append(true_y_cpu)
                 pred_y_cpus.append(pred_y_cpu)
-                thresholded_ys.append(thresholded_y)
             thresholded_y_cpu = thresholded_y.detach().cpu()
 
             total_accuracy += (thresholded_y == true_y).sum().to(pred_y.dtype)
@@ -85,16 +84,10 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
                             loss=total_loss.item())
 
         if num_classes == 2:
-            true_y_cpus = torch.cat(true_y_cpus, dim=0).detach().cpu().numpy()
-            thresholded_ys = torch.cat(thresholded_ys, dim=0).detach().cpu().numpy()
-            pred_y_cpus = torch.cat(pred_y_cpus, dim=0).detach().cpu().numpy()
-            accuracy = sklearn.metrics.accuracy_score(true_y_cpus, thresholded_ys)
-            metrics.precision = sklearn.metrics.precision_score(true_y_cpus, thresholded_ys)
-            metrics.recall = sklearn.metrics.recall_score(true_y_cpus, thresholded_ys)
-            metrics.f1 = sklearn.metrics.f1_score(true_y_cpus, thresholded_ys)
-            precision_curve, recall_curve, _ = sklearn.metrics.precision_recall_curve(true_y_cpus, pred_y_cpus)
-            metrics.pr_auc = sklearn.metrics.auc(recall_curve, precision_curve)
-
+            true_y_cpus = torch.cat(true_y_cpus, dim=0)
+            pred_y_cpus = torch.cat(pred_y_cpus, dim=0)
+            metrics.auroc = sklearn.metrics.roc_auc_score(true_y_cpus, pred_y_cpus)
+            metrics.average_precision = sklearn.metrics.average_precision_score(true_y_cpus, pred_y_cpus)
         return metrics
 
 
@@ -111,24 +104,24 @@ class _SuppressAssertions:
             return True
 
 
-def _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times, optimizer, loss_fn, max_epochs, num_classes, device,
+def _train_loop(train_dataloader, val_dataloader, model, times, optimizer, loss_fn, max_epochs, num_classes, device,
                 kwargs, step_mode):
     model.train()
     best_model = model
     best_train_loss = math.inf
     best_train_accuracy = 0
-    best_test_accuracy = 0
+    best_val_accuracy = 0
     best_train_accuracy_epoch = 0
     best_train_loss_epoch = 0
     history = []
     breaking = False
 
     if step_mode:
-        epoch_per_metric = 1  # 10
+        epoch_per_metric = 10
         plateau_terminate = 100
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=2)
     else:
-        epoch_per_metric = 1  # 10
+        epoch_per_metric = 10
         plateau_terminate = 50
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=1, mode='max')
 
@@ -142,7 +135,7 @@ def _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times,
             if breaking:
                 break
             with _SuppressAssertions(tqdm_range):
-                *train_coeffs, X, train_y, lengths, question_idxs = batch
+                *train_coeffs, train_y, lengths = batch
                 pred_y = model(times, train_coeffs, lengths, **kwargs)
                 loss = loss_fn(pred_y, train_y)
                 loss.backward()
@@ -153,7 +146,6 @@ def _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times,
             model.eval()
             train_metrics = _evaluate_metrics(train_dataloader, model, times, loss_fn, num_classes, device, kwargs)
             val_metrics = _evaluate_metrics(val_dataloader, model, times, loss_fn, num_classes, device, kwargs)
-            test_metrics = _evaluate_metrics(test_dataloader, model, times, loss_fn, num_classes, device, kwargs)
             model.train()
 
             if train_metrics.loss * 1.0001 < best_train_loss:
@@ -164,16 +156,15 @@ def _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times,
                 best_train_accuracy = train_metrics.accuracy
                 best_train_accuracy_epoch = epoch
 
-            if test_metrics.accuracy > best_test_accuracy:
-                print(epoch)
-                best_test_accuracy = test_metrics.accuracy
+            if val_metrics.accuracy > best_val_accuracy:
+                best_val_accuracy = val_metrics.accuracy
                 del best_model  # so that we don't have three copies of a model simultaneously
                 best_model = copy.deepcopy(model)
 
-            tqdm_range.write('Epoch: {}  Train loss: {:.3}  Train accuracy: {:.3}  Test loss: {:.3}  Test accuracy: {:.3} Test precision: {:.3} Test recall: {:.3} Test f1: {:.3} Test auc: {:.3}'
-                             'Val loss: {:.3}  Val accuracy: {:.3} Val precision: {:.3} Val recall: {:.3} Val f1: {:.3} Val auc: {:.3}'
-                             ''.format(epoch, train_metrics.loss, train_metrics.accuracy, test_metrics.loss, test_metrics.accuracy, test_metrics.precision, test_metrics.recall, test_metrics.f1, test_metrics.pr_auc,
-                                       val_metrics.loss, val_metrics.accuracy, val_metrics.precision, val_metrics.recall, val_metrics.f1, val_metrics.pr_auc))
+            tqdm_range.write('Epoch: {}  Train loss: {:.3}  Train accuracy: {:.3}  Val loss: {:.3}  '
+                             'Val accuracy: {:.3}'
+                             ''.format(epoch, train_metrics.loss, train_metrics.accuracy, val_metrics.loss,
+                                       val_metrics.accuracy))
             if step_mode:
                 scheduler.step(train_metrics.loss)
             else:
@@ -235,8 +226,7 @@ def main(name, times, train_dataloader, val_dataloader, test_dataloader, device,
     model, regularise_parameters = make_model()
     if num_classes == 2:
         model = _SqueezeEnd(model)
-        # loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-        loss_fn = torch.nn.BCELoss()
+        loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     else:
         loss_fn = torch.nn.functional.cross_entropy
     loss_fn = _add_weight_regularisation(loss_fn, regularise_parameters)
@@ -244,7 +234,7 @@ def main(name, times, train_dataloader, val_dataloader, test_dataloader, device,
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    history = _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times, optimizer, loss_fn, max_epochs,
+    history = _train_loop(train_dataloader, val_dataloader, model, times, optimizer, loss_fn, max_epochs,
                           num_classes, device, kwargs, step_mode)
 
     model.eval()
@@ -272,13 +262,6 @@ def main(name, times, train_dataloader, val_dataloader, test_dataloader, device,
                        test_metrics=test_metrics)
     if name is not None:
         _save_results(name, result)
-
-    loc = here / 'results' / name
-    if not os.path.exists(loc):
-        os.mkdir(loc)
-    full_path = os.path.join(str(loc), 'model_state_dict.pth')
-    torch.save(model.state_dict(), full_path)
-
     return result
 
 
@@ -291,14 +274,6 @@ def make_model(name, input_channels, output_channels, hidden_channels, hidden_hi
                                             num_hidden_layers=num_hidden_layers)
             model = models.NeuralCDE(func=vector_field, input_channels=input_channels, hidden_channels=hidden_channels,
                                      output_channels=output_channels, initial=initial)
-            return model, vector_field
-    elif name == 'naivesde':
-        def make_model():
-            vector_field = models.Diffusion_model(input_channels=input_channels, hidden_channels=hidden_channels,
-                                                  hidden_hidden_channels=hidden_hidden_channels, num_hidden_layers=num_hidden_layers,
-                                                  input_option=1, noise_option=18)
-            model = models.NeuralSDE_forecasting(func=vector_field, input_channels=input_channels,
-                                                 hidden_channels=hidden_channels, output_channels=output_channels, initial=initial)
             return model, vector_field
     elif name == 'gruode':
         def make_model():

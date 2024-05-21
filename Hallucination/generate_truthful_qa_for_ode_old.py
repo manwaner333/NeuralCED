@@ -16,7 +16,7 @@ from datasets import load_dataset
 if __name__ == "__main__":
 
     data_dict = load_dataset("truthful_qa", "generation")["validation"]
-    new_file_name = "datasets_local/truthful_qa_ex.json"
+    new_file_name = "datasets_local/truthful_qa.json"
     new_file = open(new_file_name, "w")
     idx = 0
     for ele in tqdm(data_dict):
@@ -35,7 +35,7 @@ if __name__ == "__main__":
             new_file.write(json.dumps({
                 "question_id": idx,
                 "question": question,
-                "response": ans,
+                "response": ans + '.',
                 "label": label
             }) + "\n")
             idx += 1
@@ -45,13 +45,13 @@ if __name__ == "__main__":
             new_file.write(json.dumps({
                 "question_id": idx,
                 "question": question,
-                "response": ans,
+                "response": ans + '.',
                 "label": label
             }) + "\n")
             idx += 1
         new_file.flush()
 
-        if idx > 20:
+        if idx > 600:
             break
 
     new_file.close()
