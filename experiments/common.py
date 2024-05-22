@@ -174,6 +174,7 @@ def _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times,
                              'Val loss: {:.3}  Val accuracy: {:.3} Val precision: {:.3} Val recall: {:.3} Val f1: {:.3} Val auc: {:.3}'
                              ''.format(epoch, train_metrics.loss, train_metrics.accuracy, test_metrics.loss, test_metrics.accuracy, test_metrics.precision, test_metrics.recall, test_metrics.f1, test_metrics.pr_auc,
                                        val_metrics.loss, val_metrics.accuracy, val_metrics.precision, val_metrics.recall, val_metrics.f1, val_metrics.pr_auc))
+
             if step_mode:
                 scheduler.step(train_metrics.loss)
             else:

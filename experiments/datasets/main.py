@@ -72,7 +72,7 @@ def _process_data(X_times, y, question_ids, time_intensity):
     for time in X_times:
         for _ in range(maxlen - len(time)):
             time.append([float('nan') for value in range(time_values)])
-    X_times = torch.tensor(X_times).float()
+    X_times = torch.tensor(np.array(X_times)).float()
     y = torch.tensor(y).float()
     final_indices = torch.tensor(final_indices)
     question_ids = torch.tensor(question_ids)

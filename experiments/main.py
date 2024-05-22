@@ -51,7 +51,7 @@ def main(intensity, device='cuda', max_epochs=50, pos_weight=10, *,
 
 
     intensity_str = '_intensity' if intensity else '_nointensity'
-    name = dataset_name + '_' + model_name + "_7b_" + intensity_str
+    name = dataset_name + '_' + model_name + "_7b" + intensity_str
 
 
     num_classes = 2
