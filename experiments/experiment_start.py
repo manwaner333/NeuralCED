@@ -15,7 +15,7 @@ torch.manual_seed(42)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="NeuralED4Hal")
-    parser.add_argument("--intensity", type=bool, default=False)
+    parser.add_argument("--intensity", type=str, default="False")
     parser.add_argument("--device", type=str, choices=["cuda", "cpu"], default="cuda")
     parser.add_argument("--max_epochs", type=int, default=200)
     parser.add_argument("--model_name", type=str, default="naivesde")  # ncde, odernn

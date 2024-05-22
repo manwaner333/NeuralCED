@@ -24,6 +24,11 @@ def main(intensity, device='cuda', max_epochs=50, pos_weight=10, *,
          model_name, dataset_name, hidden_channels, hidden_hidden_channels, num_hidden_layers, batch_size, num_dim,
          **kwargs):
 
+    if intensity == "False":
+        intensity = False
+    else:
+        intensity = True
+
     batch_size = batch_size  # 1024
     lr = 0.0001 * (batch_size / 32)
     num_dim = num_dim
