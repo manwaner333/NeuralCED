@@ -63,6 +63,10 @@ def main(dataset_name):
     elif dataset_name == "capital":
         origin_file_name = 'datasets_local/capitals_true_false.csv'
         ques_file_name = 'datasets_local/capital.json'
+    # ani_cap_ele_fact_inv
+    elif dataset_name == "ani_cap_ele_fact_inv":
+        origin_file_name = 'datasets_local/ani_cap_ele_fact_inv_true_false.csv'
+        ques_file_name = 'datasets_local/ani_cap_ele_fact_inv.json'
 
 
     df = pd.read_csv(origin_file_name)
@@ -92,7 +96,8 @@ def main(dataset_name):
     new_file.close()
 
 if __name__ == "__main__":
-    main(dataset_name="capital")
+   main(dataset_name="ani_cap_ele_fact_inv")
+   #main(dataset_name="capital")
    #main(dataset_name="company")
    #main(dataset_name="neg_company")
    #main(dataset_name="fact")
