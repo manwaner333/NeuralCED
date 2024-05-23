@@ -10,6 +10,7 @@ from tqdm import tqdm
 import argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM, LlamaTokenizer, AutoConfig
 from datasets import load_dataset
+# from negate import Negator
 import json
 import pandas as pd
 
@@ -42,15 +43,27 @@ def main(dataset_name):
     # city
     elif dataset_name == "city":
         origin_file_name = 'datasets_local/cities_true_false.csv'
-        ques_file_name = ('datasets_local/city.json')
+        ques_file_name = 'datasets_local/city.json'
+    elif dataset_name == "neg_city":
+        origin_file_name = 'datasets_local/neg_cities_true_false.csv'
+        ques_file_name = 'datasets_local/neg_city.json'
     # elements
     elif dataset_name == "element":
         origin_file_name = 'datasets_local/elements_true_false.csv'
-        ques_file_name = ('datasets_local/element.json')
+        ques_file_name = 'datasets_local/element.json'
     # invention
     elif dataset_name == "invention":
         origin_file_name = 'datasets_local/inventions_true_false.csv'
-        ques_file_name = ('datasets_local/invention.json')
+        ques_file_name = 'datasets_local/invention.json'
+    # invention_fact
+    elif dataset_name == "neg_invention_fact":
+        origin_file_name = 'datasets_local/neg_inventions_facts_true_false.csv'
+        ques_file_name = 'datasets_local/neg_invention_fact.json'
+    # capital
+    elif dataset_name == "capital":
+        origin_file_name = 'datasets_local/capitals_true_false.csv'
+        ques_file_name = 'datasets_local/capital.json'
+
 
     df = pd.read_csv(origin_file_name)
     new_file = open(ques_file_name, "w")
@@ -71,12 +84,25 @@ def main(dataset_name):
         }) + "\n")
         idx += 1
 
-        if idx > 20:
-            break
+        #if idx > 20:
+            #break
 
         new_file.flush()
 
     new_file.close()
 
 if __name__ == "__main__":
-   main(dataset_name="invention")
+    main(dataset_name="capital")
+   #main(dataset_name="company")
+   #main(dataset_name="neg_company")
+   #main(dataset_name="fact")
+   #main(dataset_name="neg_fact")
+   #main(dataset_name="animal")
+   #main(dataset_name="city")
+   #main(dataset_name="neg_city")
+   #main(dataset_name="element")
+   #main(dataset_name="invention")
+   # main(dataset_name="neg_invention_fact")
+
+
+
