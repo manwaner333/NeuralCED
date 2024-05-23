@@ -36,3 +36,7 @@ experiments_ode/results
 experiments_cde/datasets/data
 experiments_cde/datasets/processed_data
 experiments_cde/results
+
+experiments_update/datasets/data
+experiments_update/datasets/processed_data
+experiments_update/results
