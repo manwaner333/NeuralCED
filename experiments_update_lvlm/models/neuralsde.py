@@ -49,12 +49,13 @@ class NeuralCDE(torch.nn.Module):
         if initial and not isinstance(func, ContinuousRNNConverter):  # very ugly hack
             self.initial_network = torch.nn.Linear(input_channels, hidden_channels)
         self.linear = torch.nn.Linear(hidden_channels, output_channels)
+        self.sigmoid = torch.nn.Sigmoid()
 
     def extra_repr(self):
         return "input_channels={}, hidden_channels={}, output_channels={}, initial={}" \
                "".format(self.input_channels, self.hidden_channels, self.output_channels, self.initial)
 
-    def forward(self, x_times, times, coeffs, final_index, z0=None, stream=True, **kwargs):
+    def forward(self, times, coeffs, final_index, z0=None, stream=True, **kwargs):
         """
         Arguments:
             times: The times of the observations for the input path X, e.g. as passed as an argument to
@@ -140,7 +141,8 @@ class NeuralCDE(torch.nn.Module):
             z_t = z_t.gather(dim=0, index=final_index_indices).squeeze(0)
 
         # Linear map and return
-        pred_y = self.linear(z_t)
+        pred_y_1 = self.sigmoid(self.linear(z_t))
+        pred_y, _ = torch.max(pred_y_1, dim=1)
         return pred_y
 
 

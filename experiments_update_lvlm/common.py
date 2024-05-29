@@ -137,11 +137,6 @@ def _train_loop(train_dataloader, test_dataloader, model, times, optimizer, loss
     for epoch in tqdm_range:
         if breaking:
             break
-        model.eval()
-        print("first epoch")
-        train_metrics = _evaluate_metrics(train_dataloader, model, times, loss_fn, num_classes, device, kwargs)
-        print("Train loss: {:.3}  Train accuracy: {:.3} Train precision: {:.3} Train recall: {:.3} Train f1: {:.3} Train auc: {:.3}").format(train_metrics.loss, train_metrics.accuracy, train_metrics.precision, train_metrics.recall, train_metrics.f1, train_metrics.pr_auc)
-        model.train()
         for batch in train_dataloader:
             batch = tuple(b.to(device) for b in batch)
             if breaking:
@@ -217,7 +212,7 @@ def _save_results(name, result):
             pass
     result_to_save = result.copy()
     del result_to_save['train_dataloader']
-    del result_to_save['val_dataloader']
+    # del result_to_save['val_dataloader']
     del result_to_save['test_dataloader']
     result_to_save['model'] = str(result_to_save['model'])
 
