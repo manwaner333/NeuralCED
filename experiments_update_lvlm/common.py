@@ -137,6 +137,11 @@ def _train_loop(train_dataloader, test_dataloader, model, times, optimizer, loss
     for epoch in tqdm_range:
         if breaking:
             break
+        model.eval()
+        print("first epoch")
+        train_metrics = _evaluate_metrics(train_dataloader, model, times, loss_fn, num_classes, device, kwargs)
+        print("Train loss: {:.3}  Train accuracy: {:.3} Train precision: {:.3} Train recall: {:.3} Train f1: {:.3} Train auc: {:.3}").format(train_metrics.loss, train_metrics.accuracy, train_metrics.precision, train_metrics.recall, train_metrics.f1, train_metrics.pr_auc)
+        model.train()
         for batch in train_dataloader:
             batch = tuple(b.to(device) for b in batch)
             if breaking:
@@ -169,8 +174,8 @@ def _train_loop(train_dataloader, test_dataloader, model, times, optimizer, loss
                 del best_model  # so that we don't have three copies of a model simultaneously
                 best_model = copy.deepcopy(model)
 
-            tqdm_range.write('Epoch: {}  Train loss: {:.3}  Train accuracy: {:.3}  Test loss: {:.3}  Test accuracy: {:.3} Test precision: {:.3} Test recall: {:.3} Test f1: {:.3} Test auc: {:.3}'
-                             ''.format(epoch, train_metrics.loss, train_metrics.accuracy, test_metrics.loss, test_metrics.accuracy, test_metrics.precision, test_metrics.recall, test_metrics.f1, test_metrics.pr_auc,))
+            tqdm_range.write('Epoch: {}  Train loss: {:.3}  Train accuracy: {:.3} Train precision: {:.3} Train recall: {:.3} Train f1: {:.3} Train auc: {:.3} Test loss: {:.3}  Test accuracy: {:.3} Test precision: {:.3} Test recall: {:.3} Test f1: {:.3} Test auc: {:.3}'
+                             ''.format(epoch, train_metrics.loss, train_metrics.accuracy, train_metrics.precision, train_metrics.recall, train_metrics.f1, train_metrics.pr_auc, test_metrics.loss, test_metrics.accuracy, test_metrics.precision, test_metrics.recall, test_metrics.f1, test_metrics.pr_auc,))
 
             if step_mode:
                 scheduler.step(train_metrics.loss)
