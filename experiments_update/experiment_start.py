@@ -18,9 +18,9 @@ if __name__ == "__main__":
     parser.add_argument("--intensity", type=str, default="False")
     parser.add_argument("--device", type=str, choices=["cuda", "cpu"], default="cuda")
     parser.add_argument("--max_epochs", type=int, default=200)
-    parser.add_argument("--model_name", type=str, default="ncde")  # ncde, odernn
-    parser.add_argument("--train_dataset_name", type=str, default="company")
-    parser.add_argument("--test_dataset_name", type=str, default="neg_company")
+    parser.add_argument("--model_name", type=str, default="naivesde")  # ncde, odernn, naivesde
+    parser.add_argument("--train_dataset_name", type=str, default="truthful_qa")  # truthful_qa
+    parser.add_argument("--test_dataset_name", type=str, default="truthful_qa")  # truthful_qa
     parser.add_argument("--hidden_channels", type=int, default=256)
     parser.add_argument("--hidden_hidden_channels", type=int, default=256)
     parser.add_argument("--num_hidden_layers", type=int, default=6)

@@ -98,6 +98,64 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
         return metrics
 
 
+def _evaluate_metrics_test(dataloader, model, times, loss_fn, num_classes, device, kwargs):
+    with torch.no_grad():
+        total_accuracy = 0
+        total_confusion = torch.zeros(num_classes, num_classes).numpy()  # occurs all too often
+        total_dataset_size = 0
+        total_loss = 0
+        true_y_cpus = []
+        pred_y_cpus = []
+        thresholded_ys = []
+        for batch in dataloader:
+            batch = tuple(b.to(device) for b in batch)
+            *coeffs, X, true_y, lengths, question_idxs = batch
+            batch_size = true_y.size(0)
+            pred_y = model(times, coeffs, lengths, **kwargs)
+
+            if num_classes == 2:
+                thresholded_y = (pred_y >= 0.5).to(true_y.dtype)
+            else:
+                thresholded_y = torch.argmax(pred_y, dim=1)
+            true_y_cpu = true_y.detach().cpu()
+            pred_y_cpu = pred_y.detach().cpu()
+            if num_classes == 2:
+                # Assume that our datasets aren't so large that this breaks
+                true_y_cpus.append(true_y_cpu)
+                pred_y_cpus.append(pred_y_cpu)
+                thresholded_ys.append(thresholded_y)
+            thresholded_y_cpu = thresholded_y.detach().cpu()
+            inequality_indices = np.where(thresholded_y_cpu != true_y_cpu)
+            pred_y_diff = pred_y_cpu[inequality_indices]
+            true_y_diff = true_y_cpu[inequality_indices]
+            thresholded_y_diff = thresholded_y_cpu[inequality_indices]
+            for idx_diff in range(len(pred_y_diff)):
+                print(true_y_diff[idx_diff], thresholded_y_diff[idx_diff], pred_y_diff[idx_diff])
+            total_accuracy += (thresholded_y == true_y).sum().to(pred_y.dtype)
+            total_confusion += sklearn.metrics.confusion_matrix(true_y_cpu, thresholded_y_cpu,
+                                                                labels=range(num_classes))
+            total_dataset_size += batch_size
+            total_loss += loss_fn(pred_y, true_y) * batch_size
+
+        total_loss /= total_dataset_size  # assume 'mean' reduction in the loss function
+        total_accuracy /= total_dataset_size
+        metrics = _AttrDict(accuracy=total_accuracy.item(), confusion=total_confusion, dataset_size=total_dataset_size,
+                            loss=total_loss.item())
+
+        if num_classes == 2:
+            true_y_cpus = torch.cat(true_y_cpus, dim=0).detach().cpu().numpy()
+            thresholded_ys = torch.cat(thresholded_ys, dim=0).detach().cpu().numpy()
+            pred_y_cpus = torch.cat(pred_y_cpus, dim=0).detach().cpu().numpy()
+            accuracy = sklearn.metrics.accuracy_score(true_y_cpus, thresholded_ys)
+            metrics.precision = sklearn.metrics.precision_score(true_y_cpus, thresholded_ys)
+            metrics.recall = sklearn.metrics.recall_score(true_y_cpus, thresholded_ys)
+            metrics.f1 = sklearn.metrics.f1_score(true_y_cpus, thresholded_ys)
+            precision_curve, recall_curve, _ = sklearn.metrics.precision_recall_curve(true_y_cpus, pred_y_cpus)
+            metrics.pr_auc = sklearn.metrics.auc(recall_curve, precision_curve)
+
+        return metrics
+
+
 class _SuppressAssertions:
     def __init__(self, tqdm_range):
         self.tqdm_range = tqdm_range
@@ -152,7 +210,7 @@ def _train_loop(train_dataloader, test_dataloader, model, times, optimizer, loss
         if epoch % epoch_per_metric == 0 or epoch == max_epochs - 1:
             model.eval()
             train_metrics = _evaluate_metrics(train_dataloader, model, times, loss_fn, num_classes, device, kwargs)
-            test_metrics = _evaluate_metrics(test_dataloader, model, times, loss_fn, num_classes, device, kwargs)
+            test_metrics = _evaluate_metrics_test(test_dataloader, model, times, loss_fn, num_classes, device, kwargs)
             model.train()
 
             if train_metrics.loss * 1.0001 < best_train_loss:

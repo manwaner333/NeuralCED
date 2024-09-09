@@ -13,8 +13,10 @@ from datasets import load_dataset
 # from negate import Negator
 import json
 import pandas as pd
+import random
 
 
+# 生成数据company 那一类的数据
 def main(dataset_name):
     # company
     if dataset_name == "company":
@@ -68,14 +70,13 @@ def main(dataset_name):
         origin_file_name = 'datasets_local/ani_cap_ele_fact_inv_true_false.csv'
         ques_file_name = 'datasets_local/ani_cap_ele_fact_inv.json'
 
-
     df = pd.read_csv(origin_file_name)
     new_file = open(ques_file_name, "w")
     idx = 0
     for index, row in df.iterrows():
         question = row["statement"]
         label = row["label"]
-        if label == 0:
+        if label == 0:    # 原数据集中， 正确的是1， 错误的是0
             new_label = 1
         else:
             new_label = 0
@@ -95,11 +96,107 @@ def main(dataset_name):
 
     new_file.close()
 
+
+def main_truthful_qa():
+    data_dict = load_dataset("truthful_qa", "generation")["validation"]
+    new_file_name = "datasets_local/truthful_qa.json"
+    new_file = open(new_file_name, "w")
+    idx = 0
+
+    # 统计correct_answers and incorrect_answers 里面的每一个答案
+    # for ele in tqdm(data_dict):
+    #     question = ele["question"]
+    #     # best_answer = ele["best_answer"]
+    #     # label = 'ACCURATE'
+    #     # new_file.write(json.dumps({
+    #     #     "question_id": idx,
+    #     #     "question": question,
+    #     #     "response": best_answer,
+    #     #     "label": label
+    #     # }) + "\n")
+    #     # idx += 1
+    #     for ans in ele['correct_answers']:
+    #         # label = 'ACCURATE'
+    #         label = 0
+    #         new_file.write(json.dumps({
+    #             "question_id": idx,
+    #             "question": question,
+    #             "response": ans + '.',
+    #             "label": label
+    #         }) + "\n")
+    #         idx += 1
+    #
+    #     for ans in ele['incorrect_answers']:
+    #         # label = 'INACCURATE'
+    #         label = 1
+    #         new_file.write(json.dumps({
+    #             "question_id": idx,
+    #             "question": question,
+    #             "response": ans + '.',
+    #             "label": label
+    #         }) + "\n")
+    #         idx += 1
+    #     new_file.flush()
+
+    # 统计correct_answers and incorrect_answers 里面的第一个答案
+    for ele in tqdm(data_dict):
+        question = ele["question"]
+
+        label = 0
+        new_file.write(json.dumps({
+            "question_id": idx,
+            "question": "Q: {}".format(question) + " A: {}".format(ele['correct_answers'][0] + '.'),  # 将question 和 response 放在一起
+            "response": ele['correct_answers'][0] + '.',
+            "label": label
+        }) + "\n")
+        idx += 1
+
+        label = 1
+        new_file.write(json.dumps({
+            "question_id": idx,
+            "question": "Q: {}".format(question) + " A: {}".format(ele['incorrect_answers'][0] + '.'),
+            "response": ele['incorrect_answers'][0] + '.',
+            "label": label
+        }) + "\n")
+        idx += 1
+
+        new_file.flush()
+
+    new_file.close()
+
+# Split the generated file into two parts: one for training and another for testing
+def split_json_file(filename, ratio=0.8):
+    data = []
+    with open(filename, 'r') as file:
+        for line in file:
+            try:
+                json_data = json.loads(line)
+                data.append(json_data)
+            except json.JSONDecodeError as e:
+                print(f"Error parsing JSON from line: {line}, error: {e}")
+
+    random.shuffle(data)
+
+    split_point = int(len(data) * ratio)
+
+    part1 = data[:split_point]
+    part2 = data[split_point:]
+
+    with open('datasets_local/truthful_qa_train.json', 'w') as file1:
+        for item in part1:
+            json.dump(item, file1)
+            file1.write('\n')
+    with open('datasets_local/truthful_qa_test.json', 'w') as file2:
+        for item in part2:
+            json.dump(item, file2)
+            file2.write('\n')
+
+
 if __name__ == "__main__":
-   main(dataset_name="ani_cap_ele_fact_inv")
+   # main(dataset_name="ani_cap_ele_fact_inv")
    #main(dataset_name="capital")
-   #main(dataset_name="company")
-   #main(dataset_name="neg_company")
+   # main(dataset_name="company")
+   # main(dataset_name="neg_company")
    #main(dataset_name="fact")
    #main(dataset_name="neg_fact")
    #main(dataset_name="animal")
@@ -108,6 +205,9 @@ if __name__ == "__main__":
    #main(dataset_name="element")
    #main(dataset_name="invention")
    # main(dataset_name="neg_invention_fact")
+   # main_truthful_qa()
+   file_name = "datasets_local/truthful_qa.json"
+   split_json_file(file_name)
 
 
 
