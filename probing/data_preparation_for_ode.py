@@ -8,21 +8,22 @@ import torch
 clear_figure = True
 from sklearn.decomposition import PCA
 
-company_llama15 = "result/company/answer_company.bin"
-neg_company_llama15 = "result/neg_company/answer_neg_company.bin"
-fact_llama15 = "result/fact/answer_fact.bin"
-neg_fact_llama15 = "result/neg_fact/answer_neg_fact.bin"
-animal_llama15 = "result/animal/answer_animal.bin"
-city_llama15 = "result/city/answer_city.bin"
-neg_city_llama15 = "result/neg_city/answer_neg_city.bin"
-element_llama15 = "result/element/answer_element.bin"
-invention_llama15 = "result/invention/answer_invention.bin"
-ani_cap_ele_fact_inv_llama15 = "result/ani_cap_ele_fact_inv/answer_ani_cap_ele_fact_inv.bin"
-truthful_qa_train_llama15 = 'Hallucination/datasets_local/truthful_qa_train.json'
-truthful_qa_test_llama15 = 'Hallucination/datasets_local/truthful_qa_test.json'
+company_llama15 = "build_data/datasets_local/answer_company.bin"
+neg_company_llama15 = "build_data/datasets_local/answer_neg_company.bin"
+fact_llama15 = "build_data/datasets_local/answer_fact.bin"
+neg_fact_llama15 = "build_data/datasets_local/answer_neg_fact.bin"
+animal_llama15 = "build_data/datasets_local/answer_animal.bin"
+city_llama15 = "build_data/datasets_local/answer_city.bin"
+neg_city_llama15 = "build_data/datasets_local/answer_neg_city.bin"
+element_llama15 = "build_data/datasets_local/answer_element.bin"
+invention_llama15 = "build_data/datasets_local/answer_invention.bin"
+ani_cap_ele_fact_inv_llama15 = "build_data/datasets_local/answer_ani_cap_ele_fact_inv.bin"
+truthful_qa_train_llama15 = 'build_data/datasets_local/answer_truthful_qa_train.bin'
+truthful_qa_test_llama15 = 'build_data/datasets_local/answer_truthful_qa_test.bin'
 
 
 def save_bin(file_path, content):
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "wb") as file:
         pickle.dump(content, file)
 

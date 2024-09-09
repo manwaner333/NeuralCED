@@ -71,7 +71,7 @@ def init_model(model_name: str, device: str, num_gpus: int, max_gpu_memory: int)
 
 def eval_model(args):
     try:
-        with open("config.json") as config_file:
+        with open("build_data/config.json") as config_file:
             config_parameters = json.load(config_file)
     except FileNotFoundError:
         logging.error("Configuration file not found. Please ensure the file exists and the path is correct.")
@@ -177,8 +177,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate new csv with embeddings.")
     parser.add_argument("--model",
                         help="Name of the language model to use: '6.7b', '2.7b', '1.3b', '350m'")
-    parser.add_argument("--question-file", type=str, default="datasets_local/truthful_qa_train.json")
-    parser.add_argument("--answers-file", type=str, default="datasets_local/answer_truthful_qa_train.bin")
+    parser.add_argument("--question-file", type=str, default="build_data/datasets_local/truthful_qa_test.json")
+    parser.add_argument("--answers-file", type=str, default="build_data/datasets_local/answer_truthful_qa_test.bin")
     parser.add_argument("--num-chunks", type=int, default=1)
     parser.add_argument("--chunk-idx", type=int, default=0)
     parser.add_argument("--layers", nargs='*',

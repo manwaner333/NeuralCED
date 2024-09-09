@@ -23,24 +23,24 @@ class MMDetect(Dataset):
         if feature_key == "sentence":
             if oneflag:
                 self.data = pickle.load(
-                    open(os.path.join("Qing/data/", '_'.join([dataset, model, split]) + "_sentence_one.bin"), "rb" ))
+                    open(os.path.join("probing/data/", '_'.join([dataset, model, split]) + "_sentence_one.bin"), "rb" ))
             else:
                 self.data = pickle.load(
-                    open(os.path.join("Qing/data/", '_'.join([dataset, model, split]) + "_sentence_avg.bin"), "rb"))
+                    open(os.path.join("probing/data/", '_'.join([dataset, model, split]) + "_sentence_avg.bin"), "rb"))
         elif feature_key == "question":
             if oneflag:
                 self.data = pickle.load(
-                    open(os.path.join("Qing/data/", '_'.join([dataset, model, split]) + "_question_one.bin"), "rb"))
+                    open(os.path.join("probing/data/", '_'.join([dataset, model, split]) + "_question_one.bin"), "rb"))
             else:
                 self.data = pickle.load(
-                    open(os.path.join("Qing/data/", '_'.join([dataset, model, split]) + "_question_avg.bin"), "rb"))
+                    open(os.path.join("probing/data/", '_'.join([dataset, model, split]) + "_question_avg.bin"), "rb"))
         elif feature_key == "response":
             if oneflag:
                 self.data = pickle.load(
-                    open(os.path.join("Qing/data/", '_'.join([dataset, model, split]) + "_response_one.bin"), "rb"))
+                    open(os.path.join("probing/data/", '_'.join([dataset, model, split]) + "_response_one.bin"), "rb"))
             else:
                 self.data = pickle.load(
-                    open(os.path.join("Qing/data/", '_'.join([dataset, model, split]) + "_response_avg.bin"), "rb"))
+                    open(os.path.join("probing/data/", '_'.join([dataset, model, split]) + "_response_avg.bin"), "rb"))
 
         print(len(self.data))
     def __len__(self):
@@ -62,13 +62,13 @@ class MMDetect_Train(Dataset):
     def __init__(self, dataset, model, split, feature_key):
         if feature_key == "sentence":
             self.data = pickle.load(
-                open(os.path.join("Qing/data_clear_figure/", '_'.join([dataset, model, split]) + "_sentence.bin"), "rb" ))
+                open(os.path.join("probing/data_clear_figure/", '_'.join([dataset, model, split]) + "_sentence.bin"), "rb" ))
         elif feature_key == "question":
             self.data = pickle.load(
-                open(os.path.join("Qing/data_clear_figure/", '_'.join([dataset, model, split]) + "_question.bin"), "rb"))
+                open(os.path.join("probing/data_clear_figure/", '_'.join([dataset, model, split]) + "_question.bin"), "rb"))
         elif feature_key == "response":
             self.data = pickle.load(
-                open(os.path.join("Qing/data_clear_figure/", '_'.join([dataset, model, split]) + "_response.bin"), "rb"))
+                open(os.path.join("probing/data_clear_figure/", '_'.join([dataset, model, split]) + "_response.bin"), "rb"))
         print(len(self.data))
         qingli = 3
     def __len__(self):
@@ -185,8 +185,8 @@ def evaluate(model, test_loader, device):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--train_dataset", type=str, default='neg_company')   # pope_pop, mhal, self_data, ani_cap_ele_fact_inv
-    parser.add_argument("--test_dataset", type=str, default='neg_company')
+    parser.add_argument("--train_dataset", type=str, default='truthful_qa_train')   # pope_pop, mhal, self_data, ani_cap_ele_fact_inv
+    parser.add_argument("--test_dataset", type=str, default='truthful_qa_test')
     parser.add_argument("--model", type=str, default='llama15_7b')  # llava16_moe, llava15_7b, llava16_7b
     parser.add_argument("--bs", type=int, default=256)
     parser.add_argument("--feature_key", type=str, default="response")  # response, sentence

@@ -20,55 +20,55 @@ import random
 def main(dataset_name):
     # company
     if dataset_name == "company":
-        origin_file_name = 'datasets_local/companies_true_false.csv'
-        ques_file_name = 'datasets_local/company.json'
-    elif dataset_name == "neg_company":
-        origin_file_name = 'datasets_local/neg_companies_true_false.csv'
-        ques_file_name = 'datasets_local/neg_company.json'
+        origin_file_name = 'build_data/datasets_local/companies_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/company.json'
+    elif dataset_name == "build_data/neg_company":
+        origin_file_name = 'build_data/datasets_local/neg_companies_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/neg_company.json'
     elif dataset_name == "conj_neg_company":
-        origin_file_name = 'datasets_local/conj_neg_companies_true_false.csv'
-        ques_file_name = 'datasets_local/conj_neg_company.json'
+        origin_file_name = 'build_data/datasets_local/conj_neg_companies_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/conj_neg_company.json'
     # fact
     elif dataset_name == "fact":
-        origin_file_name = 'datasets_local/facts_true_false.csv'
-        ques_file_name = 'datasets_local/fact.json'
+        origin_file_name = 'build_data/datasets_local/facts_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/fact.json'
     elif dataset_name == "neg_fact":
-        origin_file_name = 'datasets_local/neg_facts_true_false.csv'
-        ques_file_name = 'datasets_local/neg_fact.json'
+        origin_file_name = 'build_data/datasets_local/neg_facts_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/neg_fact.json'
     elif dataset_name == "conj_neg_fact":
-        origin_file_name = 'datasets_local/conj_neg_facts_true_false.csv'
-        ques_file_name = 'datasets_local/conj_neg_fact.json'
+        origin_file_name = 'build_data/datasets_local/conj_neg_facts_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/conj_neg_fact.json'
     # animal
     elif dataset_name == "animal":
-        origin_file_name = 'datasets_local/animals_true_false.csv'
-        ques_file_name = 'datasets_local/animal.json'
+        origin_file_name = 'build_data/datasets_local/animals_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/animal.json'
     # city
     elif dataset_name == "city":
-        origin_file_name = 'datasets_local/cities_true_false.csv'
-        ques_file_name = 'datasets_local/city.json'
+        origin_file_name = 'build_data/datasets_local/cities_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/city.json'
     elif dataset_name == "neg_city":
-        origin_file_name = 'datasets_local/neg_cities_true_false.csv'
-        ques_file_name = 'datasets_local/neg_city.json'
+        origin_file_name = 'build_data/datasets_local/neg_cities_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/neg_city.json'
     # elements
     elif dataset_name == "element":
-        origin_file_name = 'datasets_local/elements_true_false.csv'
-        ques_file_name = 'datasets_local/element.json'
+        origin_file_name = 'build_data/datasets_local/elements_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/element.json'
     # invention
     elif dataset_name == "invention":
-        origin_file_name = 'datasets_local/inventions_true_false.csv'
-        ques_file_name = 'datasets_local/invention.json'
+        origin_file_name = 'build_data/datasets_local/inventions_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/invention.json'
     # invention_fact
     elif dataset_name == "neg_invention_fact":
-        origin_file_name = 'datasets_local/neg_inventions_facts_true_false.csv'
-        ques_file_name = 'datasets_local/neg_invention_fact.json'
+        origin_file_name = 'build_data/datasets_local/neg_inventions_facts_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/neg_invention_fact.json'
     # capital
     elif dataset_name == "capital":
-        origin_file_name = 'datasets_local/capitals_true_false.csv'
-        ques_file_name = 'datasets_local/capital.json'
+        origin_file_name = 'build_data/datasets_local/capitals_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/capital.json'
     # ani_cap_ele_fact_inv
     elif dataset_name == "ani_cap_ele_fact_inv":
-        origin_file_name = 'datasets_local/ani_cap_ele_fact_inv_true_false.csv'
-        ques_file_name = 'datasets_local/ani_cap_ele_fact_inv.json'
+        origin_file_name = 'build_data/datasets_local/ani_cap_ele_fact_inv_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/ani_cap_ele_fact_inv.json'
 
     df = pd.read_csv(origin_file_name)
     new_file = open(ques_file_name, "w")
@@ -99,7 +99,7 @@ def main(dataset_name):
 
 def main_truthful_qa():
     data_dict = load_dataset("truthful_qa", "generation")["validation"]
-    new_file_name = "datasets_local/truthful_qa.json"
+    new_file_name = "build_data/datasets_local/truthful_qa.json"
     new_file = open(new_file_name, "w")
     idx = 0
 
@@ -183,11 +183,11 @@ def split_json_file(filename, ratio=0.8):
     part2 = data[split_point:]
 
 
-    with open('datasets_local/truthful_qa_train.json', 'w') as file1:
+    with open('build_data/datasets_local/truthful_qa_train.json', 'w') as file1:
         for item in part1:
             json.dump(item, file1)
             file1.write('\n')
-    with open('datasets_local/truthful_qa_test.json', 'w') as file2:
+    with open('build_data/datasets_local/truthful_qa_test.json', 'w') as file2:
         for item in part2:
             json.dump(item, file2)
             file2.write('\n')
@@ -207,7 +207,7 @@ if __name__ == "__main__":
    #main(dataset_name="invention")
    # main(dataset_name="neg_invention_fact")
    # main_truthful_qa()
-   file_name = "datasets_local/truthful_qa.json"
+   file_name = "build_data/datasets_local/truthful_qa.json"
    split_json_file(file_name)
 
 
