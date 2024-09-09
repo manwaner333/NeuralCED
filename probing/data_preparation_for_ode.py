@@ -18,7 +18,8 @@ neg_city_llama15 = "result/neg_city/answer_neg_city.bin"
 element_llama15 = "result/element/answer_element.bin"
 invention_llama15 = "result/invention/answer_invention.bin"
 ani_cap_ele_fact_inv_llama15 = "result/ani_cap_ele_fact_inv/answer_ani_cap_ele_fact_inv.bin"
-truthful_qa_llama15 = 'Hallucination/datasets_local/truthful_qa.json'
+truthful_qa_train_llama15 = 'Hallucination/datasets_local/truthful_qa_train.json'
+truthful_qa_test_llama15 = 'Hallucination/datasets_local/truthful_qa_test.json'
 
 
 def save_bin(file_path, content):
@@ -57,10 +58,12 @@ def prepare_data(data, model, split, one_flag):
     elif data == "ani_cap_ele_fact_inv":
         if model == "llama15_7b":
             file_name = ani_cap_ele_fact_inv_llama15
-    elif data == "truthful_qa":
+    elif data == "truthful_qa_train":
         if model == "llama15_7b":
-            file_name = truthful_qa_llama15
-
+            file_name = truthful_qa_train_llama15
+    elif data == "truthful_qa_test":
+        if model == "llama15_7b":
+            file_name = truthful_qa_test_llama15
 
     if one_flag:
         response_train_file = os.path.join("probing/data/", "_".join([data, model, "train"]) + "_response_one.bin")
@@ -71,20 +74,19 @@ def prepare_data(data, model, split, one_flag):
         response_val_file = os.path.join("probing/data/", "_".join([data, model, "val"]) + "_response_avg.bin")
         response_test_file = os.path.join("probing/data/", "_".join([data, model, "test"]) + "_response_avg.bin")
 
-
     response_pairs = []
 
     with open(file_name, 'rb') as f:
         responses = pickle.load(f)
 
-    if split == "train":
-        filter_file = 'probing/data/' + data + '/train_question_ids.pt'
-    elif split == "val":
-        filter_file = 'probing/data/' + data + '/val_question_ids.pt'
-    elif split == "test":
-        filter_file = 'probing/data/' + data + '/test_question_ids.pt'
-
-    keys_val = torch.load(filter_file).numpy()
+    # if split == "train":
+    #     filter_file = 'probing/data/' + data + '/train_question_ids.pt'
+    # elif split == "val":
+    #     filter_file = 'probing/data/' + data + '/val_question_ids.pt'
+    # elif split == "test":
+    #     filter_file = 'probing/data/' + data + '/test_question_ids.pt'
+    #
+    # keys_val = torch.load(filter_file).numpy()
 
     for idx, content in responses.items():
 
