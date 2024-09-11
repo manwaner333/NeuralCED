@@ -34,18 +34,22 @@ def download():
         token_sub = []
         question_id = ele['question_id']
         token_sub.extend(ele['tokens']['ques'])
-        token_sub.extend(ele['tokens']['answer'])
+        # token_sub.extend(ele['tokens']['answer'])
         question_hidden_states = ele['hidden_states']['ques']
-        answer_hidden_states = ele['hidden_states']['answer']
+        # answer_hidden_states = ele['hidden_states']['answer']
         if np.isnan(question_hidden_states).any():
             print("question_hidden_states contains NaN values")
-        if np.isnan(answer_hidden_states).any():
-            print("answer_hidden_states contains NaN values")
+        # if np.isnan(answer_hidden_states).any():
+        #     print("answer_hidden_states contains NaN values")
         sub_hidden_states.extend(question_hidden_states)
-        sub_hidden_states.extend(answer_hidden_states)
+        # sub_hidden_states.extend(answer_hidden_states)
         hidden_states.append(sub_hidden_states)
         label = ele['label']
-        if label == 'ACCURATE':
+        # if label == 'ACCURATE':
+        #     flag = 0
+        # else:
+        #     flag = 1
+        if label == 0:
             flag = 0
         else:
             flag = 1
