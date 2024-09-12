@@ -212,7 +212,7 @@ def _save_results(name, result):
             pass
     result_to_save = result.copy()
     del result_to_save['train_dataloader']
-    del result_to_save['val_dataloader']
+    # del result_to_save['val_dataloader']
     del result_to_save['test_dataloader']
     result_to_save['model'] = str(result_to_save['model'])
 
