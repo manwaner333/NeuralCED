@@ -34,7 +34,8 @@ def main(intensity,                                                             
     # via the use_intensity parameter, though.
     time_intensity = intensity or (model_name in ('odernn', 'dt', 'decay'))
 
-    times, train_dataloader, val_dataloader, test_dataloader = datasets.truthful_qa.get_data(static_intensity,
+    # datasets.truthful_qa.get_data
+    times, train_dataloader, val_dataloader, test_dataloader = datasets.neg_company.get_data(static_intensity,
                                                                                         time_intensity,
                                                                                         batch_size)
 

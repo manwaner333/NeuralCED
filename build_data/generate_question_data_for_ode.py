@@ -22,7 +22,7 @@ def main(dataset_name):
     if dataset_name == "company":
         origin_file_name = 'build_data/datasets_local/companies_true_false.csv'
         ques_file_name = 'build_data/datasets_local/company.json'
-    elif dataset_name == "build_data/neg_company":
+    elif dataset_name == "neg_company":
         origin_file_name = 'build_data/datasets_local/neg_companies_true_false.csv'
         ques_file_name = 'build_data/datasets_local/neg_company.json'
     elif dataset_name == "conj_neg_company":
@@ -89,8 +89,8 @@ def main(dataset_name):
         }) + "\n")
         idx += 1
 
-        #if idx > 20:
-            #break
+        if idx > 40:
+            break
 
         new_file.flush()
 
@@ -196,8 +196,8 @@ def split_json_file(filename, ratio=0.8):
 if __name__ == "__main__":
    # main(dataset_name="ani_cap_ele_fact_inv")
    #main(dataset_name="capital")
-   main(dataset_name="company")
-   # main(dataset_name="neg_company")
+   # main(dataset_name="company")
+   main(dataset_name="neg_company")
    #main(dataset_name="fact")
    #main(dataset_name="neg_fact")
    #main(dataset_name="animal")
