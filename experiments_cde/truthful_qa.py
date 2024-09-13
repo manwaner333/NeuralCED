@@ -21,7 +21,7 @@ class InitialValueNetwork(torch.nn.Module):
 
 
 def main(intensity,                                                               # Whether to include intensity or not
-         device='cuda', max_epochs=50, pos_weight=10, *,                         # training parameters
+         device='cuda', max_epochs=100, pos_weight=10, *,                         # training parameters
          model_name, hidden_channels, hidden_hidden_channels, num_hidden_layers,  # model parameters
          dry_run=False,
          **kwargs):                                                               # kwargs passed on to cdeint
@@ -35,7 +35,8 @@ def main(intensity,                                                             
     time_intensity = intensity or (model_name in ('odernn', 'dt', 'decay'))
 
     # datasets.truthful_qa.get_data
-    times, train_dataloader, val_dataloader, test_dataloader = datasets.neg_company.get_data(static_intensity,
+    # datasets.neg_fact.get_data
+    times, train_dataloader, val_dataloader, test_dataloader = datasets.neg_fact.get_data(static_intensity,
                                                                                         time_intensity,
                                                                                         batch_size)
 
