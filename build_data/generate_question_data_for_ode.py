@@ -14,6 +14,7 @@ from datasets import load_dataset
 import json
 import pandas as pd
 import random
+import os
 
 
 # 生成数据company 那一类的数据
@@ -192,14 +193,51 @@ def split_json_file(filename, ratio=0.8):
             json.dump(item, file2)
             file2.write('\n')
 
+def main_human_machine_text():
+    origin_data_path = "build_data/datasets_local/reddit_chatGPT.jsonl"
+    new_file_name = "build_data/datasets_local/reddit_chatGPT_data.json"
+    new_file = open(new_file_name, "w")
+    idx = 0
+    questions = [json.loads(q) for q in open(os.path.expanduser(origin_data_path), "r")]
+
+    for line in tqdm(questions):
+        prompt = line['prompt']
+        human_text = line['human_text']
+        label = 0
+        new_file.write(json.dumps({
+            "question_id": idx,
+            "question": prompt + human_text,
+            "response": prompt + human_text,
+            "label": label
+        }) + "\n")
+        idx += 1
+
+        label = 1
+        machine_text = line['machine_text']
+        new_file.write(json.dumps({
+            "question_id": idx,
+            "question": prompt + machine_text,
+            "response": prompt + machine_text,
+            "label": label
+        }) + "\n")
+        idx += 1
+        new_file.flush()
+
+        if idx > 40:
+            break
+
+
+    new_file.close()
+
+
 
 if __name__ == "__main__":
    # main(dataset_name="ani_cap_ele_fact_inv")
    #main(dataset_name="capital")
    # main(dataset_name="company")
-   main(dataset_name="neg_company")
+   # main(dataset_name="neg_company")
    #main(dataset_name="fact")
-   #main(dataset_name="neg_fact")
+   # main(dataset_name="neg_fact")
    #main(dataset_name="animal")
    #main(dataset_name="city")
    #main(dataset_name="neg_city")
@@ -209,6 +247,7 @@ if __name__ == "__main__":
    # main_truthful_qa()
    # file_name = "build_data/datasets_local/truthful_qa.json"
    # split_json_file(file_name)
+   main_human_machine_text()
 
 
 
