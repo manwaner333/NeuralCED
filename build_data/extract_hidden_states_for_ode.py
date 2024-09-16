@@ -117,56 +117,64 @@ def eval_model(args):
         input_ids = encoded_input['input_ids']
         attention_mask = encoded_input['attention_mask']
 
-        with torch.inference_mode():
-            model_outputs = model(
-                input_ids,
-                output_hidden_states=True,
-                output_attentions=True,
-                attention_mask=attention_mask,
-            )
-        hidden_layer = 32
-        hidden_states = model_outputs['hidden_states'][hidden_layer][0]  # model_outputs['hidden_states']的类型是tuple(33), 里面每一个元素是（1, 30, 4096）
-        # print(hidden_states)
-        # print(hidden_states.shape)
-        total_tokens = []
-        for t in range(input_ids.shape[1]):
-            total_gen_tok_id = input_ids[:, t]
-            total_gen_tok = tokenizer.decode(total_gen_tok_id)
-            total_tokens.append(total_gen_tok)
-        question_tf = "".join(line["question"].split(" "))
-        xarr = [i for i in range(len(total_tokens))]
-        for i1 in xarr:
-            mystring = "".join(total_tokens[i1:])
-            if question_tf not in mystring:
-                break
-        i1 = i1 - 1
-        for i2 in xarr[::-1]:
-            mystring = "".join(total_tokens[i1:i2 + 1])
-            if question_tf not in mystring:
-                break
-        i2 = i2 + 1
+        try:
+            with torch.inference_mode():
+                model_outputs = model(
+                    input_ids,
+                    output_hidden_states=True,
+                    output_attentions=True,
+                    attention_mask=attention_mask,
+                )
+            hidden_layer = 32
+            hidden_states = model_outputs['hidden_states'][hidden_layer][0]  # model_outputs['hidden_states']的类型是tuple(33), 里面每一个元素是（1, 30, 4096）
+            # print(hidden_states)
+            # print(hidden_states.shape)
+            total_tokens = []
+            for t in range(input_ids.shape[1]):
+                total_gen_tok_id = input_ids[:, t]
+                total_gen_tok = tokenizer.decode(total_gen_tok_id)
+                total_tokens.append(total_gen_tok)
+            question_tf = "".join(line["question"].split(" "))
+            xarr = [i for i in range(len(total_tokens))]
+            for i1 in xarr:
+                mystring = "".join(total_tokens[i1:])
+                if question_tf not in mystring:
+                    break
+            i1 = i1 - 1
+            for i2 in xarr[::-1]:
+                mystring = "".join(total_tokens[i1:i2 + 1])
+                if question_tf not in mystring:
+                    break
+            i2 = i2 + 1
 
-        question_start_idx = i1
-        question_end_idx = i2
-        ques_tokens_len = i2 - i1 + 1
-        ques_hidden_states = hidden_states[question_start_idx:question_end_idx + 1, :]
-        combined_hidden_states["ques"] = ques_hidden_states.to(torch.float32).detach().cpu().numpy().tolist()
-        combined_tokens["ques"] = total_tokens[question_start_idx:question_end_idx + 1]
+            question_start_idx = i1
+            question_end_idx = i2
+            ques_tokens_len = i2 - i1 + 1
+            ques_hidden_states = hidden_states[question_start_idx:question_end_idx + 1, :]
+            combined_hidden_states["ques"] = ques_hidden_states.to(torch.float32).detach().cpu().numpy().tolist()
+            combined_tokens["ques"] = total_tokens[question_start_idx:question_end_idx + 1]
 
-        if (question_start_idx == 9) and (question_end_idx == len(total_tokens) - 1) and (not torch.isnan(ques_hidden_states).any()):
-            output = {"question_id": idx,
-                      "question": question,
-                      "response": response,
-                      "hidden_states": combined_hidden_states,
-                      "tokens": combined_tokens,
-                      "label": label
-                      }
-            responses[idx] = output
-        else:
-            print("idx")
-            print(question_start_idx == 9)
-            print(question_end_idx == len(total_tokens) - 1)
-            print(not torch.isnan(ques_hidden_states).any())
+            if (question_start_idx == 9) and (question_end_idx == len(total_tokens) - 1) and (not torch.isnan(ques_hidden_states).any()):
+                output = {"question_id": idx,
+                          "question": question,
+                          "response": response,
+                          "hidden_states": combined_hidden_states,
+                          "tokens": combined_tokens,
+                          "label": label
+                          }
+                responses[idx] = output
+            else:
+                print("idx")
+                print(question_start_idx == 9)
+                print(question_end_idx == len(total_tokens) - 1)
+                print(not torch.isnan(ques_hidden_states).any())
+        except torch.cuda.OutOfMemoryError:
+            print("there is not enough memory")
+            print("idx:".format(idx))
+            torch.cuda.empty_cache()
+            continue
+
+
 
     with open(answers_file, 'wb') as file:
         pickle.dump(responses, file)
