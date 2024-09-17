@@ -89,7 +89,10 @@ def _process_data(X_times, y, question_ids, time_intensity):
     for time in X_times:
         for _ in range(maxlen - len(time)):
             time.append([float('nan') for value in range(time_values)])
-    X_times = torch.tensor(X_times).float()
+    # X_times = torch.tensor(X_times).float()
+    combined_inner = [np.stack(inner_list, axis=0) for inner_list in X_times]
+    final_combined_array = np.stack(combined_inner, axis=0)
+    X_times = torch.from_numpy(final_combined_array).float()
     y = torch.tensor(y).float()
     final_indices = torch.tensor(final_indices)
     question_ids = torch.tensor(question_ids)

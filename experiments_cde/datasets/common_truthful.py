@@ -69,7 +69,6 @@ def preprocess_data(times, X, y, final_index, question_ids, append_times, append
         X = augmented_X[0]
     else:
         X = torch.cat(augmented_X, dim=2)
-
     train_X, val_X, test_X = split_data(X, y)
     train_y, val_y, test_y = split_data(y, y)
     train_final_index, val_final_index, test_final_index = split_data(final_index, y)

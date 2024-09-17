@@ -15,6 +15,11 @@ import json
 import pandas as pd
 import random
 import os
+import nltk
+from nltk.tokenize import sent_tokenize
+
+# Download the necessary resources for sentence tokenization
+nltk.download('punkt')
 
 
 # 生成数据company 那一类的数据
@@ -204,26 +209,41 @@ def main_human_machine_text():
         prompt = line['prompt']
         human_text = line['human_text']
         label = 0
+        sentences = sent_tokenize(human_text)
+        # human_text_update = " ".join(sentences[:3])
+        human_text_update = ""
+        for i, sentence in enumerate(sentences, 1):
+            if len(human_text_update.split()) < 85:
+                human_text_update += sentence
+            # print(f"Sentence {i}: {sentence}")
+
         new_file.write(json.dumps({
             "question_id": idx,
-            "question": prompt + human_text,
-            "response": prompt + human_text,
+            "question": prompt + human_text_update,
+            "response": prompt + human_text_update,
             "label": label
         }) + "\n")
         idx += 1
 
         label = 1
         machine_text = line['machine_text']
+        sentences = sent_tokenize(machine_text)
+        # machine_text_update = " ".join(sentences[:3])
+        machine_text_update = ""
+        for i, sentence in enumerate(sentences, 1):
+            if len(machine_text_update.split()) < 85:
+                machine_text_update += sentence
+            # print(f"Sentence {i}: {sentence}")
         new_file.write(json.dumps({
             "question_id": idx,
-            "question": prompt + machine_text,
-            "response": prompt + machine_text,
+            "question": prompt + machine_text_update,
+            "response": prompt + machine_text_update,
             "label": label
         }) + "\n")
         idx += 1
         new_file.flush()
 
-        if idx > 40:
+        if idx > 1000:
             break
 
 
