@@ -199,8 +199,10 @@ def split_json_file(filename, ratio=0.8):
             file2.write('\n')
 
 def main_human_machine_text():
-    origin_data_path = "build_data/datasets_local/reddit_chatGPT.jsonl"
-    new_file_name = "build_data/datasets_local/reddit_chatGPT_data.json"
+    # origin_data_path = "build_data/datasets_local/reddit_chatGPT.jsonl"
+    # new_file_name = "build_data/datasets_local/reddit_chatGPT_data.json"
+    origin_data_path = "build_data/datasets_local/wikipedia_chatgpt.jsonl"
+    new_file_name = "build_data/datasets_local/wikipedia_chatgpt_data.json"
     new_file = open(new_file_name, "w")
     idx = 0
     questions = [json.loads(q) for q in open(os.path.expanduser(origin_data_path), "r")]
@@ -243,9 +245,8 @@ def main_human_machine_text():
         idx += 1
         new_file.flush()
 
-        if idx > 1000:
+        if idx > 1000:  # 1000:
             break
-
 
     new_file.close()
 
