@@ -215,14 +215,14 @@ def main_human_machine_text():
         # human_text_update = " ".join(sentences[:3])
         human_text_update = ""
         for i, sentence in enumerate(sentences, 1):
-            if len(human_text_update.split()) < 85:
+            if len(human_text_update.split()) < 65:
                 human_text_update += sentence
             # print(f"Sentence {i}: {sentence}")
 
         new_file.write(json.dumps({
             "question_id": idx,
-            "question": prompt + human_text_update,
-            "response": prompt + human_text_update,
+            "question": prompt + ". " + human_text_update,
+            "response": prompt + ". " + human_text_update,
             "label": label
         }) + "\n")
         idx += 1
@@ -233,19 +233,19 @@ def main_human_machine_text():
         # machine_text_update = " ".join(sentences[:3])
         machine_text_update = ""
         for i, sentence in enumerate(sentences, 1):
-            if len(machine_text_update.split()) < 85:
+            if len(machine_text_update.split()) < 65:
                 machine_text_update += sentence
             # print(f"Sentence {i}: {sentence}")
         new_file.write(json.dumps({
             "question_id": idx,
-            "question": prompt + machine_text_update,
-            "response": prompt + machine_text_update,
+            "question": prompt + ". " + machine_text_update,
+            "response": prompt + ". " + machine_text_update,
             "label": label
         }) + "\n")
         idx += 1
         new_file.flush()
 
-        if idx > 1000:  # 1000:
+        if idx > 40:  # 1000:
             break
 
     new_file.close()
