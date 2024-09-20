@@ -154,7 +154,7 @@ def eval_model(args):
             combined_hidden_states["ques"] = ques_hidden_states.to(torch.float32).detach().cpu().numpy().tolist()
             combined_tokens["ques"] = total_tokens[question_start_idx:question_end_idx + 1]
 
-            if (question_start_idx == 9) and (question_end_idx == len(total_tokens) - 1) and (not torch.isnan(ques_hidden_states).any()):
+            if (question_start_idx == 9) and (question_end_idx == len(total_tokens) - 1) and (not torch.isnan(ques_hidden_states).any()) and (len(combined_hidden_states['ques']) < 350):
                 output = {"question_id": idx,
                           "question": question,
                           "response": response,
@@ -168,6 +168,7 @@ def eval_model(args):
                 print(question_start_idx == 9)
                 print(question_end_idx == len(total_tokens) - 1)
                 print(not torch.isnan(ques_hidden_states).any())
+                print((len(combined_hidden_states['ques']) < 350))
         except torch.cuda.OutOfMemoryError:
             print("there is not enough memory")
             print("idx:".format(idx))
