@@ -7,3 +7,5 @@ from . import neg_company
 from . import neg_fact
 from . import reddit_chatGPT
 from . import wikipedia_chatgpt
+from . import fact
+from . import company
