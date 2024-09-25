@@ -24,6 +24,7 @@ class _GRU(torch.nn.Module):
         gru_channels = input_channels if use_intensity else (input_channels - 1) // 2
         self.gru_cell = torch.nn.GRUCell(input_size=gru_channels, hidden_size=hidden_channels)
         self.linear = torch.nn.Linear(hidden_channels, output_channels)
+        self.sigmoid = torch.nn.Sigmoid()  # 自己添加
 
     def extra_repr(self):
         return "input_channels={}, hidden_channels={}, output_channels={}, use_intensity={}" \
@@ -75,7 +76,7 @@ class _GRU(torch.nn.Module):
         final_index_indices = final_index.unsqueeze(-1).expand(out.size(0), out.size(2)).unsqueeze(1)
         final_out = out.gather(dim=1, index=final_index_indices).squeeze(1)
 
-        return self.linear(final_out)
+        return self.sigmoid(self.linear(final_out))
 
 
 class GRU_dt(_GRU):
@@ -131,3 +132,4 @@ class ODERNN(_GRU):
         t = torch.tensor([0, time_diff.item()], dtype=time_diff.dtype, device=time_diff.device)
         out = torchdiffeq.odeint_adjoint(func=self.func, y0=h, t=t, method='rk4')
         return out[1]
+
