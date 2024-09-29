@@ -5,6 +5,7 @@ from . import ihad
 from . import truthful_qa
 from . import neg_company
 from . import neg_fact
+from . import neg_city
 from . import reddit_chatGPT
 from . import wikipedia_chatgpt
 from . import fact

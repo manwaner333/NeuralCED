@@ -38,7 +38,9 @@ def main(intensity,                                                             
     # datasets.neg_fact.get_data
     # datasets.reddit_chatGPT.get_data
     # datasets.wikipedia_chatgpt.get_data
-    times, train_dataloader, val_dataloader, test_dataloader = datasets.company.get_data(static_intensity,
+    # datasets.company.get_data
+    # datasets.neg_company.get_data
+    times, train_dataloader, val_dataloader, test_dataloader = datasets.neg_city.get_data(static_intensity,
                                                                                         time_intensity,
                                                                                         batch_size)
 
