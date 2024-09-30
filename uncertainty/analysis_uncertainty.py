@@ -112,9 +112,11 @@ def extract_info_from_answers(file_path, data_flag, use_tfidf_weight=False, use_
     attention_weight_scores = {}
 
     if data_flag == "neg_city":
+        filter_file = "experiments_cde/datasets/processed_data/neg_city_nostaticintensity_notimeintensity/test_question_ids.pt"
+    elif data_flag == "neg_company":
         filter_file = "experiments_cde/datasets/processed_data/neg_company_nostaticintensity_notimeintensity/test_question_ids.pt"
-    elif data_flag == "m_hal":
-        filter_file = "result/m_hal/m_hal_val.json"
+    elif data_flag == "neg_fact":
+        filter_file = "experiments_cde/datasets/processed_data/neg_fact_nostaticintensity_notimeintensity/test_question_ids.pt"
 
     keys_val = torch.load(filter_file)
 
@@ -389,8 +391,10 @@ if __name__ == "__main__":
 
         if data_flag == 'neg_city':
             path = f"uncertainty/result/{data_flag}/{model_version}_answer_neg_city_uncertainty_infor.bin"
-        elif data_flag == 'm_hal':
-            path = f"result/m_hal/{model_version}_answer_synthetic_val_data_from_M_HalDetect_update_without_role.bin"
+        elif data_flag == 'neg_company':
+            path = f"uncertainty/result/{data_flag}/{model_version}_answer_neg_company_uncertainty_infor.bin"
+        elif data_flag == 'neg_fact':
+            path = f"uncertainty/result/{data_flag}/{model_version}_answer_neg_fact_uncertainty_infor.bin"
 
         (average_logprob_scores, lowest_logprob_scores, average_entropy_scores, highest_entropy_scores
          , human_label_detect_True, human_label_detect_False, sentences_info, images_info
