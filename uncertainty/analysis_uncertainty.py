@@ -1,4 +1,5 @@
 import pickle
+import torch
 import numpy as np
 from scipy.stats import entropy
 from tqdm import tqdm
@@ -110,18 +111,17 @@ def extract_info_from_answers(file_path, data_flag, use_tfidf_weight=False, use_
     tfidf_weight_scores = {}
     attention_weight_scores = {}
 
-    # if data_flag == "neg_city":
-    #     filter_file = "build_data/datasets_local/neg_city.json"
-    # elif data_flag == "m_hal":
-    #     filter_file = "result/m_hal/m_hal_val.json"
-    #
-    # with open(filter_file, 'r') as f:
-    #     keys_val = json.load(f)
+    if data_flag == "neg_city":
+        filter_file = "experiments_cde/datasets/processed_data/neg_company_nostaticintensity_notimeintensity/test_question_ids.pt"
+    elif data_flag == "m_hal":
+        filter_file = "result/m_hal/m_hal_val.json"
+
+    keys_val = torch.load(filter_file)
 
     for idx, response in responses.items():
 
-        # if idx not in keys_val:
-        #     continue
+        if idx not in keys_val:
+            continue
 
         question_id = response["question_id"]
         log_probs = response["logprobs"]
@@ -388,7 +388,7 @@ if __name__ == "__main__":
         print(model_version)
 
         if data_flag == 'neg_city':
-            path = f"uncertainty/result/{model_version}_answer_neg_city_uncertainty_infor.bin"
+            path = f"uncertainty/result/{data_flag}/{model_version}_answer_neg_city_uncertainty_infor.bin"
         elif data_flag == 'm_hal':
             path = f"result/m_hal/{model_version}_answer_synthetic_val_data_from_M_HalDetect_update_without_role.bin"
 
@@ -453,151 +453,3 @@ if __name__ == "__main__":
         analysis_sentence_level_info(average_logprob_scores, average_entropy_scores, lowest_logprob_scores,
                                      highest_entropy_scores, human_label_detect_True, average_logprob_flag,
                                      average_entropy_flag, lowest_logprob_flag, highest_entropy_flag, save_path, name)
-
-        # # response False
-        # # 分析response level的相关数据
-        # print("###############################################################################")
-        # print("False")
-        # average_logprob_flag = True  # False
-        # average_entropy_flag = False  # True
-        # lowest_logprob_flag = True  # False
-        # highest_entropy_flag = False  # True
-        #
-        # if data_flag == "self_data":
-        #     save_path = 'result/self_data'
-        #     name = f'{model_version}_self_data_response_false'
-        # elif data_flag == "m_hal":
-        #     save_path = 'result/m_hal'
-        #     name = f'{model_version}_m_hal_response_false'
-        #
-        # logprob_avg_response_pd = []
-        # entropy_avg_response_pd = []
-        # logprob_min_response_pd = []
-        # entropy_max_response_pd = []
-        # label_True_response_pd = []
-        # label_False_response_pd = []
-        #
-        # for dic_idx in list(logprob_avg_response_scores.keys()):
-        #     logprob_avg_response_pd.extend(logprob_avg_response_scores[dic_idx])
-        #     entropy_avg_response_pd.extend(entropy_avg_response_scores[dic_idx])
-        #     logprob_min_response_pd.extend(logprob_min_response_scores[dic_idx])
-        #     entropy_max_response_pd.extend(entropy_max_response_scores[dic_idx])
-        #     label_True_response_pd.extend(label_True_response[dic_idx])
-        #     label_False_response_pd.extend(label_False_response[dic_idx])
-        #
-        # # 分析response的准确率
-        # total_num = len(label_True_response_pd)
-        # print("The total number of cases is: {}; The ratio of true values is: {}".format(total_num, label_True_response_pd.count(1.0) / total_num))
-        # print("The total number of cases is: {}; The ratio of false values is: {}".format(total_num, label_True_response_pd.count(0.0) / total_num))
-        #
-        #
-        # analysis_sentence_level_info(logprob_avg_response_pd, entropy_avg_response_pd, logprob_min_response_pd, entropy_max_response_pd,
-        #                              label_False_response_pd, average_logprob_flag, average_entropy_flag, lowest_logprob_flag, highest_entropy_flag, save_path, name, with_role)
-        #
-        # # response True
-        # print("True")
-        # average_logprob_flag = False
-        # average_entropy_flag = True
-        # lowest_logprob_flag = False
-        # highest_entropy_flag = True
-        # if data_flag == "self_data":
-        #     save_path = 'result/self_data'
-        #     name = f'{model_version}_self_data_response_true'
-        # elif data_flag == "m_hal":
-        #     save_path = 'result/m_hal'
-        #     name = f'{model_version}_m_hal_response_true'
-        # analysis_sentence_level_info(logprob_avg_response_pd, entropy_avg_response_pd, logprob_min_response_pd, entropy_max_response_pd,
-        #                              label_True_response_pd, average_logprob_flag, average_entropy_flag, lowest_logprob_flag, highest_entropy_flag, save_path, name, with_role)
-
-    elif self_check:
-        model_version = 'llava_v15_7b'
-        print(model_version)
-        # self_check相关数据分析
-        if data_flag == "self_data":
-            self_check_file_path = f'result/self_data/{model_version}_answer_self_check_pope_adversarial_new_prompt_responses_denoted.bin'
-        elif data_flag == "m_hal":
-            self_check_file_path = f'result/m_hal/{model_version}_answer_self_check_synthetic_val_data_from_M_HalDetect.bin'
-
-        with open(self_check_file_path, "rb") as self_check_f:
-            self_check_responses = pickle.load(self_check_f)
-
-        total_true_labels = []
-        total_false_labels = []
-        total_mqag_scores = []
-        total_bert_scores = []
-        total_ngram_scores = []
-        total_nli_scores = []
-
-        for idx, response in tqdm(self_check_responses.items()):
-            sent_scores_mqags = response['sent_scores_mqags']
-            sent_scores_bertscores = response['sent_scores_bertscores']
-            sent_scores_ngrams = response['sent_scores_ngrams']['sent_level']['max_neg_logprob']
-            sent_scores_nlis = response['sent_scores_nlis']
-
-            if None in sent_scores_mqags or None in sent_scores_bertscores or None in sent_scores_ngrams or None in sent_scores_nlis:
-                continue
-
-            labels = response['labels']
-            value_true_labels = []
-            value_false_labels = []
-            for label in labels:
-                if label == 'ACCURATE' or label == 'ANALYSIS':
-                    true_score = 1.0
-                    false_score = 0.0
-                elif label == 'INACCURATE':
-                    true_score = 0.0
-                    false_score = 1.0
-                value_true_labels.append(true_score)
-                value_false_labels.append(false_score)
-
-
-            if not (len(value_true_labels) == len(value_false_labels) == len(sent_scores_mqags) == len(
-                sent_scores_bertscores) == len(sent_scores_ngrams) == len(sent_scores_nlis)):
-                print("there are some mistakes in the length of sentences.")
-
-            total_true_labels.extend(value_true_labels)
-            total_false_labels.extend(value_false_labels)
-            total_mqag_scores.extend(sent_scores_mqags)
-            total_bert_scores.extend(sent_scores_bertscores)
-            total_ngram_scores.extend(sent_scores_ngrams)
-            total_nli_scores.extend(sent_scores_nlis)
-
-        # 分析准确率
-        total_num = len(total_true_labels)
-        print("The total number of sentences is: {}; The ratio of true values is: {}".format(total_num, total_true_labels.count(1.0) / total_num))
-        print("The total number of sentences is: {}; The ratio of false values is: {}".format(total_num, total_true_labels.count(0.0) / total_num))
-
-        # 分析self check 的相关指标
-        # False
-        print("False")
-        mqag_flag = False
-        bert_flag = False
-        ngram_flag = False
-        nli_flag = False
-        if data_flag == "self_data":
-            save_path = 'result/self_data'
-            name = f'{model_version}_self_data_self_check_false'
-        elif data_flag == "m_hal":
-            save_path = 'result/m_hal'
-            name = f'{model_version}_m_hal_self_check_false'
-        analysis_sentence_level_self_check_info(total_mqag_scores, total_bert_scores, total_ngram_scores,
-                                                total_nli_scores, total_false_labels, mqag_flag,
-                                                bert_flag, ngram_flag, nli_flag, save_path, name)
-
-        # True
-        print("True")
-        mqag_flag = True
-        bert_flag = True
-        ngram_flag = True
-        nli_flag = True
-        if data_flag == "self_data":
-            save_path = 'result/self_data'
-            name = f'{model_version}_self_data_self_check_true'
-        elif data_flag == "m_hal":
-            save_path = 'result/m_hal'
-            name = f'{model_version}_m_hal_self_check_true'
-        analysis_sentence_level_self_check_info(total_mqag_scores, total_bert_scores, total_ngram_scores,
-                                                total_nli_scores, total_true_labels, mqag_flag,
-                                                bert_flag, ngram_flag, nli_flag, save_path, name)
-
-
