@@ -50,3 +50,5 @@ experiments_update_lvlm/results
 hansband/*
 translate/*
 probing/data/*
+uncertainty/result
+*.log
