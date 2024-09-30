@@ -435,9 +435,12 @@ if __name__ == "__main__":
         if data_flag == "neg_city":
             save_path = 'uncertainty/result/neg_city'
             name = f'{model_version}_neg_city_false'
-        elif data_flag == "m_hal":
-            save_path = 'result/m_hal'
-            name = f'{model_version}_m_hal_false'
+        elif data_flag == "neg_company":
+            save_path = 'uncertainty/result/neg_company'
+            name = f'{model_version}_neg_company_false'
+        elif data_flag == "neg_fact":
+            save_path = 'uncertainty/result/neg_fact'
+            name = f'{model_version}_neg_fact_false'
 
         analysis_sentence_level_info(average_logprob_scores, average_entropy_scores, lowest_logprob_scores,
                                      highest_entropy_scores, human_label_detect_False, average_logprob_flag,
@@ -448,12 +451,17 @@ if __name__ == "__main__":
         average_entropy_flag = True
         lowest_logprob_flag = False
         highest_entropy_flag = True
-        if data_flag == "self_data":
-            save_path = 'result/self_data'
-            name = f'{model_version}_self_data_true'
-        elif data_flag == "m_hal":
-            save_path = 'result/m_hal'
-            name = f'{model_version}_m_hal_true'
+
+        if data_flag == "neg_city":
+            save_path = 'uncertainty/result/neg_city'
+            name = f'{model_version}_neg_city_false'
+        elif data_flag == "neg_company":
+            save_path = 'uncertainty/result/neg_company'
+            name = f'{model_version}_neg_company_false'
+        elif data_flag == "neg_fact":
+            save_path = 'uncertainty/result/neg_fact'
+            name = f'{model_version}_neg_fact_false'
+
         analysis_sentence_level_info(average_logprob_scores, average_entropy_scores, lowest_logprob_scores,
                                      highest_entropy_scores, human_label_detect_True, average_logprob_flag,
                                      average_entropy_flag, lowest_logprob_flag, highest_entropy_flag, save_path, name)
