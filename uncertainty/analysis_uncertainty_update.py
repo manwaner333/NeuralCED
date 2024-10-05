@@ -212,37 +212,37 @@ if __name__ == "__main__":
         print("Detect hallucination")
         # average_logprob
         average_logprob_scores_1 = [-ele for ele in average_logprob_scores]
-        average_logprob_accuracy = accuracy_score(human_label_detect_True, average_logprob_scores_1)
-        average_logprob_precision = precision_score(human_label_detect_True, average_logprob_scores_1, pos_label=1)
-        average_logprob_recall = recall_score(human_label_detect_True, average_logprob_scores_1, pos_label=1)
-        average_logprob_f1 = f1_score(human_label_detect_True, average_logprob_scores_1, pos_label=1)
+        average_logprob_accuracy = 0  #  accuracy_score(human_label_detect_True, average_logprob_scores_1)
+        average_logprob_precision = 0  # precision_score(human_label_detect_True, average_logprob_scores_1, pos_label=1)
+        average_logprob_recall = 0  # recall_score(human_label_detect_True, average_logprob_scores_1, pos_label=1)
+        average_logprob_f1 = 0  # f1_score(human_label_detect_True, average_logprob_scores_1, pos_label=1)
         avg_logprob_roc_auc = roc_auc_score(human_label_detect_True, average_logprob_scores_1)
         print(f"average_logprob_Accuracy: {average_logprob_accuracy:.2f} average_logprob_Precision: {average_logprob_precision:.2f} average_logprob_Recall: {average_logprob_recall:.2f} average_logprob_F1: {average_logprob_f1:.2f} average_logprob_AUC_ROC:{avg_logprob_roc_auc:.2f}")
 
         # average_entropy
-        avg_entropy_accuracy = accuracy_score(human_label_detect_True, average_entropy_scores)
-        avg_entropy_precision = precision_score(human_label_detect_True, average_entropy_scores, pos_label=1)
-        avg_entropy_recall = recall_score(human_label_detect_True, average_entropy_scores, pos_label=1)
-        avg_entropy_f1 = f1_score(human_label_detect_True, average_entropy_scores, pos_label=1)
+        avg_entropy_accuracy = 0  #  accuracy_score(human_label_detect_True, average_entropy_scores)
+        avg_entropy_precision = 0  #  precision_score(human_label_detect_True, average_entropy_scores, pos_label=1)
+        avg_entropy_recall = 0  #  recall_score(human_label_detect_True, average_entropy_scores, pos_label=1)
+        avg_entropy_f1 = 0  #  f1_score(human_label_detect_True, average_entropy_scores, pos_label=1)
         avg_entropy_roc_auc = roc_auc_score(human_label_detect_True, average_entropy_scores)
         print(f"average_entropy_Accuracy: {avg_entropy_accuracy:.2f} average_entropy_Precision: {avg_entropy_precision:.2f} average_entropy_Recall: {avg_entropy_recall:.2f} average_entropy_F1: {avg_entropy_f1:.2f} average_entropy_AUC_ROC:{avg_entropy_roc_auc:.2f}")
 
 
         # lowest_logprob
         lowest_logprob_scores_1 = [-ele for ele in lowest_logprob_scores]
-        lowest_logprob_accuracy = accuracy_score(human_label_detect_True, lowest_logprob_scores_1)
-        lowest_logprob_precision = precision_score(human_label_detect_True, lowest_logprob_scores_1, pos_label=1)
-        lowest_logprob_recall = recall_score(human_label_detect_True, lowest_logprob_scores_1, pos_label=1)
-        lowest_logprob_f1 = f1_score(human_label_detect_True, lowest_logprob_scores_1, pos_label=1)
+        lowest_logprob_accuracy = 0  #  accuracy_score(human_label_detect_True, lowest_logprob_scores_1)
+        lowest_logprob_precision = 0  #  precision_score(human_label_detect_True, lowest_logprob_scores_1, pos_label=1)
+        lowest_logprob_recall = 0  #  recall_score(human_label_detect_True, lowest_logprob_scores_1, pos_label=1)
+        lowest_logprob_f1 = 0  #  f1_score(human_label_detect_True, lowest_logprob_scores_1, pos_label=1)
         lowest_logprob_roc_auc = roc_auc_score(human_label_detect_True, lowest_logprob_scores_1)
         print(f"lowest_logprob_Accuracy: {lowest_logprob_accuracy:.2f} lowest_logprob_Precision: {lowest_logprob_precision:.2f} lowest_logprob_Recall: {lowest_logprob_recall:.2f} lowest_logprob_F1: {lowest_logprob_f1:.2f} lowest_logprob_AUC_ROC:{lowest_logprob_roc_auc:.2f}")
 
 
         # highest_entropy
-        highest_entropy_accuracy = accuracy_score(human_label_detect_True, highest_entropy_scores)
-        highest_entropy_precision = precision_score(human_label_detect_True, highest_entropy_scores, pos_label=1)
-        highest_entropy_recall = recall_score(human_label_detect_True, highest_entropy_scores, pos_label=1)
-        highest_entropy_f1 = f1_score(human_label_detect_True, highest_entropy_scores, pos_label=1)
+        highest_entropy_accuracy = 0  #  accuracy_score(human_label_detect_True, highest_entropy_scores)
+        highest_entropy_precision = 0  #  precision_score(human_label_detect_True, highest_entropy_scores, pos_label=1)
+        highest_entropy_recall = 0  #  recall_score(human_label_detect_True, highest_entropy_scores, pos_label=1)
+        highest_entropy_f1 = 0  #  f1_score(human_label_detect_True, highest_entropy_scores, pos_label=1)
         highest_entropy_roc_auc = roc_auc_score(human_label_detect_True, highest_entropy_scores)
         print(f"highest_entropy_Accuracy: {highest_entropy_accuracy:.2f} highest_entropy_Precision: {highest_entropy_precision:.2f} highest_entropy_Recall: {highest_entropy_recall:.2f} highest_entropy_F1: {highest_entropy_f1:.2f} highest_entropy_AUC_ROC:{highest_entropy_roc_auc:.2f}")
 
