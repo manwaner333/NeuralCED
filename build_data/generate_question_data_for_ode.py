@@ -95,7 +95,7 @@ def main(dataset_name):
         }) + "\n")
         idx += 1
 
-        if idx > 40:
+        if idx > 20:
             break
 
         new_file.flush()
@@ -257,18 +257,18 @@ if __name__ == "__main__":
    #main(dataset_name="capital")
    # main(dataset_name="company")
    # main(dataset_name="neg_company")
-   #main(dataset_name="fact")
+   # main(dataset_name="neg_fact")
    # main(dataset_name="neg_fact")
    #main(dataset_name="animal")
    #main(dataset_name="city")
-   #main(dataset_name="neg_city")
+   main(dataset_name="neg_city")
    #main(dataset_name="element")
    #main(dataset_name="invention")
    # main(dataset_name="neg_invention_fact")
    # main_truthful_qa()
    # file_name = "build_data/datasets_local/truthful_qa.json"
    # split_json_file(file_name)
-   main_human_machine_text()
+   # main_human_machine_text()
 
 
 

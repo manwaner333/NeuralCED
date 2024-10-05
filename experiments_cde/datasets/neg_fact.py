@@ -78,6 +78,13 @@ def download():
         start = end
     y = np.array(y)
     print(len(x), len(y), y.tolist().count(1))
+    # # 保存数据
+    # x_res = []
+    # for ele in x:
+    #     x_res.append(ele[-1])
+    #
+    # np.save("datasets/x_fact.npy", x_res)
+    # np.save("datasets/y_fact.npy", y)
     return x, y, question_ids
 
 def _process_data(X_times, y, question_ids, time_intensity):

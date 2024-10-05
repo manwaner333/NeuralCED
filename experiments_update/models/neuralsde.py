@@ -312,7 +312,7 @@ class Diffusion_model(torch.nn.Module):
         """
         super().__init__()
         self.sde_type = "ito"
-        self.noise_type = "diagonal" # or "scalar"
+        self.noise_type = "diagonal"  # or "scalar"
         self.input_option = input_option
         self.noise_option = noise_option
         
@@ -390,7 +390,7 @@ class Diffusion_model(torch.nn.Module):
         # z = self.linear_out(z)
         z = self.linear_out(z).view(*z.shape[:-1], self.hidden_channels, self.input_channels)
 
-        if self.input_option in [5,6]: # geometric
+        if self.input_option in [5, 6]:  # geometric
             # instead of z * y, using logistics
             z = z * (1 - torch.nan_to_num(y).sigmoid())
         else:
@@ -412,12 +412,12 @@ class Diffusion_model(torch.nn.Module):
     def g(self, t, y):
         if t.dim() == 0:
             t = torch.full_like(y[:,0], fill_value=t).unsqueeze(-1)
-                    
+
         ## define diffusion term
         # None, identical to ODE/CDE
         if self.noise_option == 0: # constant 0
             noise = torch.zeros(y.size(0), y.size(1)).to(y.device)
-        
+
         # Constant sigma # optimize (log val).exp() > 0
         elif self.noise_option == 1: # constant sigma
             noise = self.sigma.exp().expand(y.size(0), y.size(1))
@@ -443,7 +443,7 @@ class Diffusion_model(torch.nn.Module):
             noise = y.relu()
         elif self.noise_option == 11: # complex
             noise = t * y
-            
+
         # Neural Network (lienar / nonlinear)
         elif self.noise_option == 12: # NN(t)
             tt = self.noise_t(torch.cat([torch.sin(t), torch.cos(t)], dim=-1))
@@ -451,7 +451,7 @@ class Diffusion_model(torch.nn.Module):
         elif self.noise_option == 13: # NN(t) * y
             tt = self.noise_t(torch.cat([torch.sin(t), torch.cos(t)], dim=-1))
             noise = tt * y
-        elif self.noise_option == 14: # NN(t,y) 
+        elif self.noise_option == 14: # NN(t,y)
             yy = self.noise_y(torch.cat([torch.sin(t), torch.cos(t), y], dim=-1))
             noise = yy
         elif self.noise_option == 15: # NN(t&y) * y
@@ -463,15 +463,14 @@ class Diffusion_model(torch.nn.Module):
         elif self.noise_option == 17: # 2NN(t) * y
             tt = self.noise_t(torch.cat([torch.sin(t), torch.cos(t)], dim=-1)).relu()
             noise = tt * y
-        elif self.noise_option == 18: # 2NN(t,y) 
+        elif self.noise_option == 18: # 2NN(t,y)
             yy = self.noise_y(torch.cat([torch.sin(t), torch.cos(t), y], dim=-1)).relu()
             noise = yy
         elif self.noise_option == 19: # 2NN(t,y) * y
             yy = self.noise_y(torch.cat([torch.sin(t), torch.cos(t), y], dim=-1)).relu()
             noise = yy * y
 
-        noise = self.theta.sigmoid() * torch.nan_to_num(noise) # bounding # ignore nan 
+        noise = self.theta.sigmoid() * torch.nan_to_num(noise) # bounding # ignore nan
         noise = noise.tanh()
         return noise # diagonal noise
         # return noise.unsqueeze(-1) # scalar noise
-        

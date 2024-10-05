@@ -454,13 +454,13 @@ if __name__ == "__main__":
 
         if data_flag == "neg_city":
             save_path = 'uncertainty/result/neg_city'
-            name = f'{model_version}_neg_city_false'
+            name = f'{model_version}_neg_city_true'
         elif data_flag == "neg_company":
             save_path = 'uncertainty/result/neg_company'
-            name = f'{model_version}_neg_company_false'
+            name = f'{model_version}_neg_company_true'
         elif data_flag == "neg_fact":
             save_path = 'uncertainty/result/neg_fact'
-            name = f'{model_version}_neg_fact_false'
+            name = f'{model_version}_neg_fact_true'
 
         analysis_sentence_level_info(average_logprob_scores, average_entropy_scores, lowest_logprob_scores,
                                      highest_entropy_scores, human_label_detect_True, average_logprob_flag,

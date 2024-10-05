@@ -52,3 +52,5 @@ translate/*
 probing/data/*
 uncertainty/result
 *.log
+experiments_cde/datasets/*.png
+experiments_cde/datasets/*.npy

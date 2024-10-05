@@ -83,8 +83,8 @@ def download():
     # for ele in x:
     #     x_res.append(ele[-1])
     #
-    # np.save("datasets/x.npy", x_res)
-    # np.save("datasets/y.npy", y)
+    # np.save("datasets/x_city.npy", x_res)
+    # np.save("datasets/y_city.npy", y)
     return x, y, question_ids
 
 def _process_data(X_times, y, question_ids, time_intensity):
