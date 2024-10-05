@@ -63,6 +63,9 @@ def main(dataset_name):
     elif dataset_name == "invention":
         origin_file_name = 'build_data/datasets_local/inventions_true_false.csv'
         ques_file_name = 'build_data/datasets_local/invention.json'
+    elif dataset_name == "neg_invention":
+        origin_file_name = 'build_data/datasets_local/neg_inventions_true_false.csv'
+        ques_file_name = 'build_data/datasets_local/neg_invention.json'
     # invention_fact
     elif dataset_name == "neg_invention_fact":
         origin_file_name = 'build_data/datasets_local/neg_inventions_facts_true_false.csv'
@@ -261,9 +264,10 @@ if __name__ == "__main__":
    # main(dataset_name="neg_fact")
    #main(dataset_name="animal")
    #main(dataset_name="city")
-   main(dataset_name="neg_city")
+   # main(dataset_name="neg_city")
    #main(dataset_name="element")
    #main(dataset_name="invention")
+   main(dataset_name="neg_invention")
    # main(dataset_name="neg_invention_fact")
    # main_truthful_qa()
    # file_name = "build_data/datasets_local/truthful_qa.json"
