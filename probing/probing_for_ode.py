@@ -206,8 +206,11 @@ if __name__ == "__main__":
     test_loader = get_test_data_loaders(args.test_dataset, model_name=args.model, feature_key=args.feature_key,
                                       batch_size=args.bs, oneflag=oneflag)
 
-
-    input_dim = 4096
+    model_name = args.model
+    if model_name == 'llama15_7b':
+        input_dim = 4096
+    elif model_name == "llama_13b":
+        input_dim = 5120
     model = Probe(input_dim).to(device)
     criterion = nn.BCELoss()
     optimizer = optim.Adam(model.parameters())
