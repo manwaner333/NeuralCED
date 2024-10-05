@@ -59,6 +59,18 @@ def init_model(model_name: str, device: str, num_gpus: int, max_gpu_memory: int)
         tokenizer = AutoTokenizer.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True)
         model = AutoModelForCausalLM.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True,
                                                      low_cpu_mem_usage=True, config=config, **kwargs)
+        # alpaca
+        # tokenizer = AutoTokenizer.from_pretrained("chavinlo/alpaca-13b", trust_remote_code=True)
+        # model = AutoModelForCausalLM.from_pretrained("chavinlo/alpaca-13b", trust_remote_code=True,
+        #                                                      low_cpu_mem_usage=True)
+        # vicuna
+        # tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True)
+        # model = AutoModelForCausalLM.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True,
+        #                                             low_cpu_mem_usage=True)
+        # Llama-2-13b
+        # tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-13b", trust_remote_code=True)
+        # model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-13b", trust_remote_code=True,
+        #                                             low_cpu_mem_usage=True)
     except Exception as e:
         print(f"An error occurred when initializing the model: {str(e)}")
         return None, None
@@ -125,10 +137,12 @@ def eval_model(args):
                     output_attentions=True,
                     attention_mask=attention_mask,
                 )
-            hidden_layer = 32
+            hidden_layer = -1
             hidden_states = model_outputs['hidden_states'][hidden_layer][0]  # model_outputs['hidden_states']的类型是tuple(33), 里面每一个元素是（1, 30, 4096）
-            # print(hidden_states)
-            # print(hidden_states.shape)
+            print("length of hidden_states")
+            print(len(model_outputs['hidden_states']))
+            print("shape of hidden_states")
+            print(model_outputs['hidden_states'][-1].shape)
             total_tokens = []
             for t in range(input_ids.shape[1]):
                 total_gen_tok_id = input_ids[:, t]
@@ -164,7 +178,7 @@ def eval_model(args):
                           }
                 responses[idx] = output
             else:
-                print("idx")
+                print("idx".format(idx))
                 print(question_start_idx == 9)
                 print(question_end_idx == len(total_tokens) - 1)
                 print(not torch.isnan(ques_hidden_states).any())

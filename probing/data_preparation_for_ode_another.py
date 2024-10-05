@@ -9,12 +9,12 @@ clear_figure = True
 from sklearn.decomposition import PCA
 
 company_llama15 = "build_data/datasets_local/answer_company.bin"
-neg_company_llama15 = "build_data/datasets_local/answer_neg_company.bin"
+neg_company_llama15 = "build_data/datasets_local/answer_neg_company_llama_13b.bin"
 fact_llama15 = "build_data/datasets_local/answer_fact.bin"
-neg_fact_llama15 = "build_data/datasets_local/answer_neg_fact.bin"
+neg_fact_llama15 = "build_data/datasets_local/answer_neg_fact_llama_13b.bin"
 animal_llama15 = "build_data/datasets_local/answer_animal.bin"
 city_llama15 = "build_data/datasets_local/answer_city.bin"
-neg_city_llama15 = "build_data/datasets_local/answer_neg_city.bin"
+neg_city_llama15 = "build_data/datasets_local/answer_neg_city_llama_13b.bin"
 element_llama15 = "build_data/datasets_local/answer_element.bin"
 invention_llama15 = "build_data/datasets_local/answer_invention.bin"
 ani_cap_ele_fact_inv_llama15 = "build_data/datasets_local/answer_ani_cap_ele_fact_inv.bin"
