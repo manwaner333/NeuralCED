@@ -10,3 +10,4 @@ from . import reddit_chatGPT
 from . import wikipedia_chatgpt
 from . import fact
 from . import company
+from . import neg_invention
