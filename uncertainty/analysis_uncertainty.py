@@ -425,6 +425,7 @@ if __name__ == "__main__":
         print("The total number of sentences is: {}; The ratio of true values is: {}".format(total_num, human_label_detect_True.count(1.0) / total_num))
         print("The total number of sentences is: {}; The ratio of false values is: {}".format(total_num, human_label_detect_True.count(0.0) / total_num))
 
+
         # # 分析sentence level的相关数据
         print("False")
         average_logprob_flag = True  # False

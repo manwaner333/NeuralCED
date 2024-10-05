@@ -12,6 +12,9 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, auc, precision_recall_curve
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import roc_auc_score
+
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device:", device)
@@ -135,7 +138,7 @@ def train(model, criterion, optimizer, train_loader, test_loader, num_epochs, de
             running_loss += loss.item()
         print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {running_loss / len(train_loader)}")
         print("Test:")
-        accuracy, precision, recall, f1, pr_auc, all_outputs_prob, all_labels = evaluate(model, test_loader, device)
+        accuracy, precision, recall, f1, pr_auc, auc_roc, all_outputs_prob, all_labels = evaluate(model, test_loader, device)
         # print("Val:")
         # accuracy_val, precision_val, recall_val, f1_val, pr_auc_val, all_outputs_prob_val, all_labels_val = evaluate(model, val_loader, device)
 
@@ -172,15 +175,16 @@ def evaluate(model, test_loader, device):
     precision = precision_score(all_labels, all_predictions, pos_label=1)
     recall = recall_score(all_labels, all_predictions, pos_label=1)
     f1 = f1_score(all_labels, all_predictions, pos_label=1)
+    auc_roc = roc_auc_score(all_labels, all_predictions)
 
     precision_curve, recall_curve, _ = precision_recall_curve(all_labels, all_outputs_prob)
     pr_auc = auc(recall_curve, precision_curve)
     new_precision = TP / (TP + FP) if TP + FP > 0 else 0
     new_recall = TP / (TP + FN) if TP + FN > 0 else 0
     print(
-        f"Accuracy: {accuracy:.2f} Precision: {precision:.2f} Recall: {recall:.2f} F1 Score: {f1:.2f} PR-AUC: {pr_auc:.2f}")
+        f"Accuracy: {accuracy:.2f} Precision: {precision:.2f} Recall: {recall:.2f} F1 Score: {f1:.2f} PR-AUC: {pr_auc:.2f} AUC-ROC:{auc_roc:.2f}")
     # print(all_predictions)
-    return accuracy, precision, recall, f1, pr_auc, all_outputs_prob, all_labels
+    return accuracy, precision, recall, f1, auc_roc, pr_auc, all_outputs_prob, all_labels
 
 
 if __name__ == "__main__":

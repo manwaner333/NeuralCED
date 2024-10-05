@@ -9,12 +9,15 @@ clear_figure = True
 from sklearn.decomposition import PCA
 
 company_llama15 = "build_data/datasets_local/answer_company.bin"
-neg_company_llama15 = "build_data/datasets_local/answer_neg_company_llama_13b.bin"
+neg_company_llama15 = "build_data/datasets_local/answer_neg_company.bin"
+neg_company_llama_13b = "build_data/datasets_local/answer_neg_company_llama_13b.bin"
 fact_llama15 = "build_data/datasets_local/answer_fact.bin"
-neg_fact_llama15 = "build_data/datasets_local/answer_neg_fact_llama_13b.bin"
+neg_fact_llama15 = "build_data/datasets_local/answer_neg_fact.bin"
+neg_fact_llama_13b = "build_data/datasets_local/answer_neg_fact_llama_13b.bin"
 animal_llama15 = "build_data/datasets_local/answer_animal.bin"
 city_llama15 = "build_data/datasets_local/answer_city.bin"
-neg_city_llama15 = "build_data/datasets_local/answer_neg_city_llama_13b.bin"
+neg_city_llama15 = "build_data/datasets_local/answer_neg_city.bin"
+neg_city_llama_13b = "build_data/datasets_local/answer_neg_city_llama_13b.bin"
 element_llama15 = "build_data/datasets_local/answer_element.bin"
 invention_llama15 = "build_data/datasets_local/answer_invention.bin"
 ani_cap_ele_fact_inv_llama15 = "build_data/datasets_local/answer_ani_cap_ele_fact_inv.bin"
@@ -36,12 +39,16 @@ def prepare_data(data, model, split, one_flag):
     elif data == "neg_company":
         if model == "llama15_7b":
             file_name = neg_company_llama15
+        elif model == 'llama_13b':
+            file_name = neg_company_llama_13b
     elif data == "fact":
         if model == "llama15_7b":
             file_name = fact_llama15
     elif data == "neg_fact":
         if model == "llama15_7b":
             file_name = neg_fact_llama15
+        elif model == 'llama_13b':
+            file_name = neg_fact_llama_13b
     elif data == "animal":
         if model == "llama15_7b":
             file_name = animal_llama15
@@ -51,6 +58,8 @@ def prepare_data(data, model, split, one_flag):
     elif data == "neg_city":
         if model == "llama15_7b":
             file_name = neg_city_llama15
+        elif model == 'llama_13b':
+            file_name = neg_city_llama_13b
     elif data == "element":
         if model == "llama15_7b":
             file_name = element_llama15
@@ -100,10 +109,6 @@ def prepare_data(data, model, split, one_flag):
         if question_id not in keys_val:
             continue
         label = content["label"]
-        # if label == 1:
-        #     flag = 0
-        # else:
-        #     flag = 1
         if one_flag:
             hidden_states = content["hidden_states"]['ques'][-1]
         else:
@@ -125,9 +130,8 @@ def prepare_data(data, model, split, one_flag):
 
 if __name__ == '__main__':
     oneflag = False
-    # train_data_name = "truthful_qa_train"
-    # test_data_name = "truthful_qa_test"
+    model = "llama15_7b"
     train_data_name = "truthful_qa"
     test_data_name = "truthful_qa"
-    prepare_data(train_data_name, model="llama15_7b", split="train", one_flag=oneflag)
-    prepare_data(test_data_name, model="llama15_7b", split="test", one_flag=oneflag)
+    prepare_data(train_data_name, model=model, split="train", one_flag=oneflag)
+    prepare_data(test_data_name, model=model, split="test", one_flag=oneflag)
