@@ -19,7 +19,8 @@ city_llama15 = "build_data/datasets_local/answer_city.bin"
 neg_city_llama15 = "build_data/datasets_local/answer_neg_city.bin"
 neg_city_llama_13b = "build_data/datasets_local/answer_neg_city_llama_13b.bin"
 element_llama15 = "build_data/datasets_local/answer_element.bin"
-invention_llama15 = "build_data/datasets_local/answer_invention.bin"
+neg_invention_llama15 = "build_data/datasets_local/answer_neg_invention.bin"
+neg_invention_llama_13b = "build_data/datasets_local/answer_neg_invention_llama_13b.bin"
 ani_cap_ele_fact_inv_llama15 = "build_data/datasets_local/answer_ani_cap_ele_fact_inv.bin"
 truthful_qa_llama15 = 'build_data/datasets_local/answer_truthful_qa.bin'
 truthful_qa_train_llama15 = 'build_data/datasets_local/answer_truthful_qa_train.bin'
@@ -63,9 +64,11 @@ def prepare_data(data, model, split, one_flag):
     elif data == "element":
         if model == "llama15_7b":
             file_name = element_llama15
-    elif data == "invention":
+    elif data == "neg_invention":
         if model == "llama15_7b":
-            file_name = invention_llama15
+            file_name = neg_invention_llama15
+        elif model == 'llama_13b':
+            file_name = neg_invention_llama_13b
     elif data == "ani_cap_ele_fact_inv":
         if model == "llama15_7b":
             file_name = ani_cap_ele_fact_inv_llama15
