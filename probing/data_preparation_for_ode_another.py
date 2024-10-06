@@ -11,16 +11,24 @@ from sklearn.decomposition import PCA
 company_llama15 = "build_data/datasets_local/answer_company.bin"
 neg_company_llama15 = "build_data/datasets_local/answer_neg_company.bin"
 neg_company_llama_13b = "build_data/datasets_local/answer_neg_company_llama_13b.bin"
+neg_company_alpaca_13b = "build_data/datasets_local/answer_neg_company_alpaca_13b.bin"
+neg_company_vicuna_13b = "build_data/datasets_local/answer_neg_company_vicuna_13b.bin"
 fact_llama15 = "build_data/datasets_local/answer_fact.bin"
 neg_fact_llama15 = "build_data/datasets_local/answer_neg_fact.bin"
 neg_fact_llama_13b = "build_data/datasets_local/answer_neg_fact_llama_13b.bin"
+neg_fact_alpaca_13b = "build_data/datasets_local/answer_neg_fact_alpaca_13b.bin"
+neg_fact_vicuna_13b = "build_data/datasets_local/answer_neg_fact_vicuna_13b.bin"
 animal_llama15 = "build_data/datasets_local/answer_animal.bin"
 city_llama15 = "build_data/datasets_local/answer_city.bin"
 neg_city_llama15 = "build_data/datasets_local/answer_neg_city.bin"
 neg_city_llama_13b = "build_data/datasets_local/answer_neg_city_llama_13b.bin"
+neg_city_alpaca_13b = "build_data/datasets_local/answer_neg_city_alpaca_13b.bin"
+neg_city_vicuna_13b = "build_data/datasets_local/answer_neg_city_vicuna_13b.bin"
 element_llama15 = "build_data/datasets_local/answer_element.bin"
 neg_invention_llama15 = "build_data/datasets_local/answer_neg_invention.bin"
 neg_invention_llama_13b = "build_data/datasets_local/answer_neg_invention_llama_13b.bin"
+neg_invention_alpaca_13b = "build_data/datasets_local/answer_neg_invention_alpaca_13b.bin"
+neg_invention_vicuna_13b = "build_data/datasets_local/answer_neg_invention_vicuna_13b.bin"
 ani_cap_ele_fact_inv_llama15 = "build_data/datasets_local/answer_ani_cap_ele_fact_inv.bin"
 truthful_qa_llama15 = 'build_data/datasets_local/answer_truthful_qa.bin'
 truthful_qa_train_llama15 = 'build_data/datasets_local/answer_truthful_qa_train.bin'
@@ -42,6 +50,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = neg_company_llama15
         elif model == 'llama_13b':
             file_name = neg_company_llama_13b
+        elif model == 'alpaca_13b':
+            file_name = neg_company_alpaca_13b
+        elif model == 'vicuna_13b':
+            file_name = neg_company_vicuna_13b
     elif data == "fact":
         if model == "llama15_7b":
             file_name = fact_llama15
@@ -50,6 +62,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = neg_fact_llama15
         elif model == 'llama_13b':
             file_name = neg_fact_llama_13b
+        elif model == 'alpaca_13b':
+            file_name = neg_fact_alpaca_13b
+        elif model == 'vicuna_13b':
+            file_name = neg_fact_vicuna_13b
     elif data == "animal":
         if model == "llama15_7b":
             file_name = animal_llama15
@@ -61,6 +77,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = neg_city_llama15
         elif model == 'llama_13b':
             file_name = neg_city_llama_13b
+        elif model == 'alpaca_13b':
+            file_name = neg_city_alpaca_13b
+        elif model == 'vicuna_13b':
+            file_name = neg_city_vicuna_13b
     elif data == "element":
         if model == "llama15_7b":
             file_name = element_llama15
@@ -69,6 +89,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = neg_invention_llama15
         elif model == 'llama_13b':
             file_name = neg_invention_llama_13b
+        elif model == 'alpaca_13b':
+            file_name = neg_invention_alpaca_13b
+        elif model == 'vicuna_13b':
+            file_name = neg_invention_vicuna_13b
     elif data == "ani_cap_ele_fact_inv":
         if model == "llama15_7b":
             file_name = ani_cap_ele_fact_inv_llama15
