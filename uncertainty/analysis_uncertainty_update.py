@@ -48,6 +48,8 @@ def extract_info_from_answers(file_path, data_flag, use_tfidf_weight=False, use_
         filter_file = "experiments_cde/datasets/processed_data/neg_company_nostaticintensity_notimeintensity/test_question_ids.pt"
     elif data_flag == "neg_fact":
         filter_file = "experiments_cde/datasets/processed_data/neg_fact_nostaticintensity_notimeintensity/test_question_ids.pt"
+    elif data_flag == "neg_invention":
+        filter_file = "experiments_cde/datasets/processed_data/neg_invention_nostaticintensity_notimeintensity/test_question_ids.pt"
 
     keys_val = torch.load(filter_file)
 
