@@ -31,6 +31,9 @@ neg_invention_alpaca_13b = "build_data/datasets_local/answer_neg_invention_alpac
 neg_invention_vicuna_13b = "build_data/datasets_local/answer_neg_invention_vicuna_13b.bin"
 ani_cap_ele_fact_inv_llama15 = "build_data/datasets_local/answer_ani_cap_ele_fact_inv.bin"
 truthful_qa_llama15 = 'build_data/datasets_local/answer_truthful_qa.bin'
+truthful_qa_llama_13b = 'build_data/datasets_local/answer_truthful_qa_llama_13b.bin'
+truthful_qa_vicuna_13b = 'build_data/datasets_local/answer_truthful_qa_vicuna_13b.bin'
+truthful_qa_alpaca_13b = 'build_data/datasets_local/answer_truthful_qa_alpaca_13b.bin'
 truthful_qa_train_llama15 = 'build_data/datasets_local/answer_truthful_qa_train.bin'
 truthful_qa_test_llama15 = 'build_data/datasets_local/answer_truthful_qa_test.bin'
 
@@ -105,6 +108,12 @@ def prepare_data(data, model, split, one_flag):
     elif data == "truthful_qa":
         if model == "llama15_7b":
             file_name = truthful_qa_llama15
+        elif model == 'llama_13b':
+            file_name = truthful_qa_llama_13b
+        elif model == 'alpaca_13b':
+            file_name = truthful_qa_alpaca_13b
+        elif model == 'vicuna_13b':
+            file_name = truthful_qa_vicuna_13b
 
     if one_flag:
         response_train_file = os.path.join("probing/data/", "_".join([data, model, "train"]) + "_response_one.bin")
