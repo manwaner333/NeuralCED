@@ -9,6 +9,7 @@ import torch
 import tqdm
 
 import models
+from sklearn.metrics import roc_auc_score
 
 here = pathlib.Path(__file__).resolve().parent
 
@@ -94,6 +95,7 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
             metrics.f1 = sklearn.metrics.f1_score(true_y_cpus, thresholded_ys)
             precision_curve, recall_curve, _ = sklearn.metrics.precision_recall_curve(true_y_cpus, pred_y_cpus)
             metrics.pr_auc = sklearn.metrics.auc(recall_curve, precision_curve)
+            metrics.auc_roc = roc_auc_score(true_y_cpus, thresholded_ys)
 
         return metrics
 
@@ -170,9 +172,9 @@ def _train_loop(train_dataloader, val_dataloader, test_dataloader, model, times,
                 del best_model  # so that we don't have three copies of a model simultaneously
                 best_model = copy.deepcopy(model)
 
-            tqdm_range.write('Epoch: {}  Train loss: {:.3}  Train accuracy: {:.3}  Test loss: {:.3}  Test accuracy: {:.3} Test precision: {:.3} Test recall: {:.3} Test f1: {:.3} Test auc: {:.3}'
+            tqdm_range.write('Epoch: {}  Train loss: {:.3}  Train accuracy: {:.3}  Test loss: {:.3}  Test accuracy: {:.3} Test precision: {:.3} Test recall: {:.3} Test f1: {:.3} Test pr_auc: {:.3} Test auc_roc: {:.3}'
                              'Val loss: {:.3}  Val accuracy: {:.3} Val precision: {:.3} Val recall: {:.3} Val f1: {:.3} Val auc: {:.3}'
-                             ''.format(epoch, train_metrics.loss, train_metrics.accuracy, test_metrics.loss, test_metrics.accuracy, test_metrics.precision, test_metrics.recall, test_metrics.f1, test_metrics.pr_auc,
+                             ''.format(epoch, train_metrics.loss, train_metrics.accuracy, test_metrics.loss, test_metrics.accuracy, test_metrics.precision, test_metrics.recall, test_metrics.f1, test_metrics.pr_auc, test_metrics.auc_roc,
                                        val_metrics.loss, val_metrics.accuracy, val_metrics.precision, val_metrics.recall, val_metrics.f1, val_metrics.pr_auc))
             if step_mode:
                 scheduler.step(train_metrics.loss)
