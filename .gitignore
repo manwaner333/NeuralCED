@@ -54,3 +54,4 @@ uncertainty/result
 *.log
 experiments_cde/datasets/*.png
 experiments_cde/datasets/*.npy
+experiments_cde/*.png

@@ -50,6 +50,8 @@ def extract_info_from_answers(file_path, data_flag, use_tfidf_weight=False, use_
         filter_file = "experiments_cde/datasets/processed_data/neg_fact_nostaticintensity_notimeintensity/test_question_ids.pt"
     elif data_flag == "neg_invention":
         filter_file = "experiments_cde/datasets/processed_data/neg_invention_nostaticintensity_notimeintensity/test_question_ids.pt"
+    elif data_flag == "truthful_qa":
+        filter_file = "experiments_cde/datasets/processed_data/truthful_qa_nostaticintensity_notimeintensity/test_question_ids.pt"
 
     keys_val = torch.load(filter_file)
 
@@ -187,6 +189,8 @@ if __name__ == "__main__":
             path = f"uncertainty/result/{data_flag}/{model_version}_answer_neg_fact_uncertainty_infor.bin"
         elif data_flag == 'neg_invention':
             path = f"uncertainty/result/{data_flag}/{model_version}_answer_neg_invention_uncertainty_infor.bin"
+        elif data_flag == 'truthful_qa':
+            path = f"uncertainty/result/{data_flag}/{model_version}_answer_truthful_qa_uncertainty_infor.bin"
 
         (average_logprob_scores, lowest_logprob_scores, average_entropy_scores, highest_entropy_scores
          , human_label_detect_True, human_label_detect_False, sentences_info, images_info
