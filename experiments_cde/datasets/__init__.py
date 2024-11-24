@@ -11,3 +11,6 @@ from . import wikipedia_chatgpt
 from . import fact
 from . import company
 from . import neg_invention
+from . import trivia_qa
+from . import HaluEval_qa
+from . import nq_qa
