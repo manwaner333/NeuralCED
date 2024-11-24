@@ -36,6 +36,18 @@ truthful_qa_vicuna_13b = 'build_data/datasets_local/answer_truthful_qa_vicuna_13
 truthful_qa_alpaca_13b = 'build_data/datasets_local/answer_truthful_qa_alpaca_13b.bin'
 truthful_qa_train_llama15 = 'build_data/datasets_local/answer_truthful_qa_train.bin'
 truthful_qa_test_llama15 = 'build_data/datasets_local/answer_truthful_qa_test.bin'
+trivia_qa_llama15 ='build_data/datasets_local/answer_trivia_qa.bin'
+trivia_qa_llama_13b = 'build_data/datasets_local/answer_trivia_qa_llama_13b.bin'
+trivia_qa_vicuna_13b = 'build_data/datasets_local/answer_trivia_qa_vicuna_13b.bin'
+trivia_qa_alpaca_13b = 'build_data/datasets_local/answer_trivia_qa_alpaca_13b.bin'
+HaluEval_qa_llama15 ='build_data/datasets_local/answer_HaluEval_qa.bin'
+HaluEval_qa_llama_13b = 'build_data/datasets_local/answer_HaluEval_qa_llama_13b.bin'
+HaluEval_qa_vicuna_13b = 'build_data/datasets_local/answer_HaluEval_qa_vicuna_13b.bin'
+HaluEval_qa_alpaca_13b = 'build_data/datasets_local/answer_HaluEval_qa_alpaca_13b.bin'
+nq_qa_llama15 ='build_data/datasets_local/answer_nq_qa.bin'
+nq_qa_llama_13b = 'build_data/datasets_local/answer_nq_qa_llama_13b.bin'
+nq_qa_vicuna_13b = 'build_data/datasets_local/answer_nq_qa_vicuna_13b.bin'
+nq_qa_alpaca_13b = 'build_data/datasets_local/answer_nq_qa_alpaca_13b.bin'
 
 
 def save_bin(file_path, content):
@@ -114,6 +126,33 @@ def prepare_data(data, model, split, one_flag):
             file_name = truthful_qa_alpaca_13b
         elif model == 'vicuna_13b':
             file_name = truthful_qa_vicuna_13b
+    elif data == "trivia_qa":
+        if model == "llama15_7b":
+            file_name = trivia_qa_llama15
+        elif model == 'llama_13b':
+            file_name = trivia_qa_llama_13b
+        elif model == 'alpaca_13b':
+            file_name = trivia_qa_alpaca_13b
+        elif model == 'vicuna_13b':
+            file_name = trivia_qa_vicuna_13b
+    elif data == "HaluEval_qa":
+        if model == "llama15_7b":
+            file_name = HaluEval_qa_llama15
+        elif model == 'llama_13b':
+            file_name = HaluEval_qa_llama_13b
+        elif model == 'alpaca_13b':
+            file_name = HaluEval_qa_alpaca_13b
+        elif model == 'vicuna_13b':
+            file_name = HaluEval_qa_vicuna_13b
+    elif data == "nq_qa":
+        if model == "llama15_7b":
+            file_name = nq_qa_llama15
+        elif model == 'llama_13b':
+            file_name = nq_qa_llama_13b
+        elif model == 'alpaca_13b':
+            file_name = nq_qa_alpaca_13b
+        elif model == 'vicuna_13b':
+            file_name = nq_qa_vicuna_13b
 
     if one_flag:
         response_train_file = os.path.join("probing/data/", "_".join([data, model, "train"]) + "_response_one.bin")
