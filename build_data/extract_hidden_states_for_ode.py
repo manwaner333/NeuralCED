@@ -55,28 +55,46 @@ def init_model(model_name: str, device: str, num_gpus: int, max_gpu_memory: int)
     else:
         raise ValueError(f"Invalid device: {device}")
     try:
-        config = AutoConfig.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True)
-        tokenizer = AutoTokenizer.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True,
-                                                     low_cpu_mem_usage=True, config=config, **kwargs)
+        # config = AutoConfig.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True)
+        # tokenizer = AutoTokenizer.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True)
+        # model = AutoModelForCausalLM.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True,
+        #                                              low_cpu_mem_usage=True, config=config, **kwargs)
         # alpaca
         # tokenizer = AutoTokenizer.from_pretrained("chavinlo/alpaca-13b", trust_remote_code=True)
         # model = AutoModelForCausalLM.from_pretrained("chavinlo/alpaca-13b", trust_remote_code=True,
         #                                                      low_cpu_mem_usage=True)
         # vicuna
-        # tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True)
-        # model = AutoModelForCausalLM.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True,
-        #                                             low_cpu_mem_usage=True)
+        tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True,
+                                                    low_cpu_mem_usage=True)
         # Llama-2-13b
         # tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-13b", trust_remote_code=True)
         # model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-13b", trust_remote_code=True,
         #                                             low_cpu_mem_usage=True)
+        # Mistral-7B-Instruct-v0.3
+        # model_id = "mistralai/Mistral-7B-Instruct-v0.3"
+        # tokenizer = AutoTokenizer.from_pretrained(model_id)
+        # model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
+
+        # # Meta-Llama-3.1-8B-Instruct
+        # model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+        # tokenizer = AutoTokenizer.from_pretrained(model_id)
+        # model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
+        #
+        # # gemma-2-9b-it
+        # tokenizer = AutoTokenizer.from_pretrained("google/gemma-2-9b-it")
+        # model = AutoModelForCausalLM.from_pretrained(
+        #     "google/gemma-2-9b-it",
+        #     device_map="auto",
+        #     torch_dtype=torch.bfloat16,)
+
+
     except Exception as e:
         print(f"An error occurred when initializing the model: {str(e)}")
         return None, None
-
-    if device == "cuda" and num_gpus == 1:
-        model.cuda()
+    # if device == "cuda" and num_gpus == 1:
+    #     model.cuda()
+    #
 
     return model, tokenizer
 
@@ -188,8 +206,6 @@ def eval_model(args):
             print("idx:".format(idx))
             torch.cuda.empty_cache()
             continue
-
-
 
     with open(answers_file, 'wb') as file:
         pickle.dump(responses, file)
