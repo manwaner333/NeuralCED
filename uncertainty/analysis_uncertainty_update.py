@@ -52,6 +52,13 @@ def extract_info_from_answers(file_path, data_flag, use_tfidf_weight=False, use_
         filter_file = "experiments_cde/datasets/processed_data/neg_invention_nostaticintensity_notimeintensity/test_question_ids.pt"
     elif data_flag == "truthful_qa":
         filter_file = "experiments_cde/datasets/processed_data/truthful_qa_nostaticintensity_notimeintensity/test_question_ids.pt"
+    elif data_flag == "HaluEval_qa":
+        filter_file = "experiments_cde/datasets/processed_data/HaluEval_qa_nostaticintensity_notimeintensity/test_question_ids.pt"
+    elif data_flag == "trivia_qa":
+        filter_file = "experiments_cde/datasets/processed_data/trivia_qa_nostaticintensity_notimeintensity/test_question_ids.pt"
+    elif data_flag == "nq_qa":
+        filter_file = "experiments_cde/datasets/processed_data/nq_qa_nostaticintensity_notimeintensity/test_question_ids.pt"
+
 
     keys_val = torch.load(filter_file)
 
