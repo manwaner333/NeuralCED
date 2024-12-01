@@ -13,41 +13,57 @@ neg_company_llama15 = "build_data/datasets_local/answer_neg_company.bin"
 neg_company_llama_13b = "build_data/datasets_local/answer_neg_company_llama_13b.bin"
 neg_company_alpaca_13b = "build_data/datasets_local/answer_neg_company_alpaca_13b.bin"
 neg_company_vicuna_13b = "build_data/datasets_local/answer_neg_company_vicuna_13b.bin"
+neg_company_mistral_7b = "build_data/datasets_local/answer_neg_company_mistral_7b.bin"
+neg_company_gemma2_9b = "build_data/datasets_local/answer_neg_company_gemma2_9b.bin"
 fact_llama15 = "build_data/datasets_local/answer_fact.bin"
 neg_fact_llama15 = "build_data/datasets_local/answer_neg_fact.bin"
 neg_fact_llama_13b = "build_data/datasets_local/answer_neg_fact_llama_13b.bin"
 neg_fact_alpaca_13b = "build_data/datasets_local/answer_neg_fact_alpaca_13b.bin"
 neg_fact_vicuna_13b = "build_data/datasets_local/answer_neg_fact_vicuna_13b.bin"
+neg_fact_mistral_7b = "build_data/datasets_local/answer_neg_fact_mistral_7b.bin"
+neg_fact_gemma2_9b = "build_data/datasets_local/answer_neg_fact_gemma2_9b.bin"
 animal_llama15 = "build_data/datasets_local/answer_animal.bin"
 city_llama15 = "build_data/datasets_local/answer_city.bin"
 neg_city_llama15 = "build_data/datasets_local/answer_neg_city.bin"
 neg_city_llama_13b = "build_data/datasets_local/answer_neg_city_llama_13b.bin"
 neg_city_alpaca_13b = "build_data/datasets_local/answer_neg_city_alpaca_13b.bin"
 neg_city_vicuna_13b = "build_data/datasets_local/answer_neg_city_vicuna_13b.bin"
+neg_city_mistral_7b = "build_data/datasets_local/answer_neg_city_mistral_7b.bin"
+neg_city_gemma2_9b = "build_data/datasets_local/answer_neg_city_gemma2_9b.bin"
 element_llama15 = "build_data/datasets_local/answer_element.bin"
 neg_invention_llama15 = "build_data/datasets_local/answer_neg_invention.bin"
 neg_invention_llama_13b = "build_data/datasets_local/answer_neg_invention_llama_13b.bin"
 neg_invention_alpaca_13b = "build_data/datasets_local/answer_neg_invention_alpaca_13b.bin"
 neg_invention_vicuna_13b = "build_data/datasets_local/answer_neg_invention_vicuna_13b.bin"
+neg_invention_mistral_7b = "build_data/datasets_local/answer_neg_invention_mistral_7b.bin"
+neg_invention_gemma2_9b = "build_data/datasets_local/answer_neg_invention_gemma2_9b.bin"
 ani_cap_ele_fact_inv_llama15 = "build_data/datasets_local/answer_ani_cap_ele_fact_inv.bin"
 truthful_qa_llama15 = 'build_data/datasets_local/answer_truthful_qa.bin'
 truthful_qa_llama_13b = 'build_data/datasets_local/answer_truthful_qa_llama_13b.bin'
 truthful_qa_vicuna_13b = 'build_data/datasets_local/answer_truthful_qa_vicuna_13b.bin'
 truthful_qa_alpaca_13b = 'build_data/datasets_local/answer_truthful_qa_alpaca_13b.bin'
+truthful_qa_mistral_7b = "build_data/datasets_local/answer_truthful_qa_mistral_7b.bin"
+truthful_qa_gemma2_9b = "build_data/datasets_local/answer_truthful_qa_gemma2_9b.bin"
 truthful_qa_train_llama15 = 'build_data/datasets_local/answer_truthful_qa_train.bin'
 truthful_qa_test_llama15 = 'build_data/datasets_local/answer_truthful_qa_test.bin'
 trivia_qa_llama15 ='build_data/datasets_local/answer_trivia_qa.bin'
 trivia_qa_llama_13b = 'build_data/datasets_local/answer_trivia_qa_llama_13b.bin'
 trivia_qa_vicuna_13b = 'build_data/datasets_local/answer_trivia_qa_vicuna_13b.bin'
 trivia_qa_alpaca_13b = 'build_data/datasets_local/answer_trivia_qa_alpaca_13b.bin'
+trivia_qa_mistral_7b = "build_data/datasets_local/answer_trivia_qa_mistral_7b.bin"
+trivia_qa_gemma2_9b = "build_data/datasets_local/answer_trivia_qa_gemma2_9b.bin"
 HaluEval_qa_llama15 ='build_data/datasets_local/answer_HaluEval_qa.bin'
 HaluEval_qa_llama_13b = 'build_data/datasets_local/answer_HaluEval_qa_llama_13b.bin'
 HaluEval_qa_vicuna_13b = 'build_data/datasets_local/answer_HaluEval_qa_vicuna_13b.bin'
 HaluEval_qa_alpaca_13b = 'build_data/datasets_local/answer_HaluEval_qa_alpaca_13b.bin'
+HaluEval_qa_mistral_7b = "build_data/datasets_local/answer_HaluEval_qa_mistral_7b.bin"
+HaluEval_qa_gemma2_9b = "build_data/datasets_local/answer_HaluEval_qa_gemma2_9b.bin"
 nq_qa_llama15 ='build_data/datasets_local/answer_nq_qa.bin'
 nq_qa_llama_13b = 'build_data/datasets_local/answer_nq_qa_llama_13b.bin'
 nq_qa_vicuna_13b = 'build_data/datasets_local/answer_nq_qa_vicuna_13b.bin'
 nq_qa_alpaca_13b = 'build_data/datasets_local/answer_nq_qa_alpaca_13b.bin'
+nq_qa_mistral_7b = "build_data/datasets_local/answer_nq_qa_mistral_7b.bin"
+nq_qa_gemma2_9b = "build_data/datasets_local/answer_nq_qa_gemma2_9b.bin"
 
 
 def save_bin(file_path, content):
@@ -69,6 +85,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = neg_company_alpaca_13b
         elif model == 'vicuna_13b':
             file_name = neg_company_vicuna_13b
+        elif model == "mistral_7b":
+            file_name = neg_company_mistral_7b
+        elif model == "gemma2_9b":
+            file_name = neg_company_gemma2_9b
     elif data == "fact":
         if model == "llama15_7b":
             file_name = fact_llama15
@@ -81,6 +101,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = neg_fact_alpaca_13b
         elif model == 'vicuna_13b':
             file_name = neg_fact_vicuna_13b
+        elif model == "mistral_7b":
+            file_name = neg_fact_mistral_7b
+        elif model == "gemma2_9b":
+            file_name = neg_fact_gemma2_9b
     elif data == "animal":
         if model == "llama15_7b":
             file_name = animal_llama15
@@ -96,6 +120,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = neg_city_alpaca_13b
         elif model == 'vicuna_13b':
             file_name = neg_city_vicuna_13b
+        elif model == "mistral_7b":
+            file_name = neg_city_mistral_7b
+        elif model == "gemma2_9b":
+            file_name = neg_city_gemma2_9b
     elif data == "element":
         if model == "llama15_7b":
             file_name = element_llama15
@@ -108,6 +136,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = neg_invention_alpaca_13b
         elif model == 'vicuna_13b':
             file_name = neg_invention_vicuna_13b
+        elif model == "mistral_7b":
+            file_name = neg_invention_mistral_7b
+        elif model == "gemma2_9b":
+            file_name = neg_invention_gemma2_9b
     elif data == "ani_cap_ele_fact_inv":
         if model == "llama15_7b":
             file_name = ani_cap_ele_fact_inv_llama15
@@ -126,6 +158,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = truthful_qa_alpaca_13b
         elif model == 'vicuna_13b':
             file_name = truthful_qa_vicuna_13b
+        elif model == "mistral_7b":
+            file_name = truthful_qa_mistral_7b
+        elif model == "gemma2_9b":
+            file_name = truthful_qa_gemma2_9b
     elif data == "trivia_qa":
         if model == "llama15_7b":
             file_name = trivia_qa_llama15
@@ -135,6 +171,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = trivia_qa_alpaca_13b
         elif model == 'vicuna_13b':
             file_name = trivia_qa_vicuna_13b
+        elif model == "mistral_7b":
+            file_name = trivia_qa_mistral_7b
+        elif model == "gemma2_9b":
+            file_name = trivia_qa_gemma2_9b
     elif data == "HaluEval_qa":
         if model == "llama15_7b":
             file_name = HaluEval_qa_llama15
@@ -144,6 +184,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = HaluEval_qa_alpaca_13b
         elif model == 'vicuna_13b':
             file_name = HaluEval_qa_vicuna_13b
+        elif model == "mistral_7b":
+            file_name = HaluEval_qa_mistral_7b
+        elif model == "gemma2_9b":
+            file_name = HaluEval_qa_gemma2_9b
     elif data == "nq_qa":
         if model == "llama15_7b":
             file_name = nq_qa_llama15
@@ -153,6 +197,10 @@ def prepare_data(data, model, split, one_flag):
             file_name = nq_qa_alpaca_13b
         elif model == 'vicuna_13b':
             file_name = nq_qa_vicuna_13b
+        elif model == "mistral_7b":
+            file_name = nq_qa_mistral_7b
+        elif model == "gemma2_9b":
+            file_name = nq_qa_gemma2_9b
 
     if one_flag:
         response_train_file = os.path.join("probing/data/", "_".join([data, model, "train"]) + "_response_one.bin")
