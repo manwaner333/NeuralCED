@@ -191,6 +191,12 @@ if __name__ == "__main__":
             path = f"uncertainty/result/{data_flag}/{model_version}_answer_neg_invention_uncertainty_infor.bin"
         elif data_flag == 'truthful_qa':
             path = f"uncertainty/result/{data_flag}/{model_version}_answer_truthful_qa_uncertainty_infor.bin"
+        elif data_flag == 'trivia_qa':
+            path = f"uncertainty/result/{data_flag}/{model_version}_answer_trivia_qa_uncertainty_infor.bin"
+        elif data_flag == 'HaluEval_qa':
+            path = f"uncertainty/result/{data_flag}/{model_version}_answer_HaluEval_qa_uncertainty_infor.bin"
+        elif data_flag == 'nq_qa':
+            path = f"uncertainty/result/{data_flag}/{model_version}_answer_nq_qa_uncertainty_infor.bin"
 
         (average_logprob_scores, lowest_logprob_scores, average_entropy_scores, highest_entropy_scores
          , human_label_detect_True, human_label_detect_False, sentences_info, images_info

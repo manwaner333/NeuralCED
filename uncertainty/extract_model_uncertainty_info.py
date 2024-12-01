@@ -72,6 +72,21 @@ def init_model(model_name: str, device: str, num_gpus: int, max_gpu_memory: int)
         # tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-13b", trust_remote_code=True)
         # model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-13b", trust_remote_code=True,
         #                                             low_cpu_mem_usage=True)
+        # Mistral-7B-Instruct-v0.3
+        # model_id = "mistralai/Mistral-7B-Instruct-v0.3"
+        # tokenizer = AutoTokenizer.from_pretrained(model_id)
+        # model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
+
+        # # Meta-Llama-3.1-8B-Instruct
+        # model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+        # tokenizer = AutoTokenizer.from_pretrained(model_id)
+        # model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
+        #
+        # # gemma-2-9b-it
+        # tokenizer = AutoTokenizer.from_pretrained("google/gemma-2-9b-it")
+        # model = AutoModelForCausalLM.from_pretrained("google/gemma-2-9b-it", device_map="auto",
+        #                                              torch_dtype=torch.bfloat16, )
+
     except Exception as e:
         print(f"An error occurred when initializing the model: {str(e)}")
         return None, None
@@ -232,6 +247,9 @@ def eval_model(args):
             print("there is not enough memory")
             print("idx:".format(idx))
             torch.cuda.empty_cache()
+            continue
+        except RuntimeError as e:
+            print(f"Skipping due to RuntimeError: {e}")
             continue
 
     with open(answers_file, 'wb') as file:
