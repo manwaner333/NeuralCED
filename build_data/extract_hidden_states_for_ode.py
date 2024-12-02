@@ -64,9 +64,9 @@ def init_model(model_name: str, device: str, num_gpus: int, max_gpu_memory: int)
         # model = AutoModelForCausalLM.from_pretrained("chavinlo/alpaca-13b", trust_remote_code=True,
         #                                                      low_cpu_mem_usage=True)
         # vicuna
-        tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True,
-                                                    low_cpu_mem_usage=True)
+        # tokenizer = AutoTokenizer.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True)
+        # model = AutoModelForCausalLM.from_pretrained("lmsys/vicuna-13b-v1.5", trust_remote_code=True,
+        #                                             low_cpu_mem_usage=True)
         # Llama-2-13b
         # tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-13b", trust_remote_code=True)
         # model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-13b", trust_remote_code=True,
@@ -82,12 +82,14 @@ def init_model(model_name: str, device: str, num_gpus: int, max_gpu_memory: int)
         # model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
         #
         # # gemma-2-9b-it
-        # tokenizer = AutoTokenizer.from_pretrained("google/gemma-2-9b-it")
-        # model = AutoModelForCausalLM.from_pretrained(
-        #     "google/gemma-2-9b-it",
-        #     device_map="auto",
-        #     torch_dtype=torch.bfloat16,)
-
+        tokenizer = AutoTokenizer.from_pretrained("google/gemma-2-9b-it")
+        model = AutoModelForCausalLM.from_pretrained(
+            "google/gemma-2-9b-it",
+            # torch_dtype=torch.bfloat16,
+            trust_remote_code=True,
+            low_cpu_mem_usage=True,
+            load_in_4bit=True
+        )
 
     except Exception as e:
         print(f"An error occurred when initializing the model: {str(e)}")
@@ -169,12 +171,12 @@ def eval_model(args):
             question_tf = "".join(line["question"].split(" "))
             xarr = [i for i in range(len(total_tokens))]
             for i1 in xarr:
-                mystring = "".join(total_tokens[i1:])
+                mystring = "".join(total_tokens[i1:]).replace(" ", "")  # 如果是gemma2 模型， 要添加.replace(" ", "")
                 if question_tf not in mystring:
                     break
             i1 = i1 - 1
             for i2 in xarr[::-1]:
-                mystring = "".join(total_tokens[i1:i2 + 1])
+                mystring = "".join(total_tokens[i1:i2 + 1]).replace(" ", "")  # 如果是gemma2 模型， 要添加.replace(" ", "")
                 if question_tf not in mystring:
                     break
             i2 = i2 + 1

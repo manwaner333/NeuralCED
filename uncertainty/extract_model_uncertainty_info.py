@@ -58,7 +58,7 @@ def init_model(model_name: str, device: str, num_gpus: int, max_gpu_memory: int)
     try:
         config = AutoConfig.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True)
         tokenizer = AutoTokenizer.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True,
+        model = AutoModelForCausalLM.from_pretrained("huggyllama/llama-" + model_name, trust_remote_code=True, load_in_4bit=True,
                                                      low_cpu_mem_usage=True, config=config, **kwargs)
         # alpaca
         # tokenizer = AutoTokenizer.from_pretrained("chavinlo/alpaca-13b", trust_remote_code=True)
@@ -91,8 +91,8 @@ def init_model(model_name: str, device: str, num_gpus: int, max_gpu_memory: int)
         print(f"An error occurred when initializing the model: {str(e)}")
         return None, None
 
-    if device == "cuda" and num_gpus == 1:
-        model.cuda()
+    #if device == "cuda" and num_gpus == 1:
+    #    model.cuda()
 
     return model, tokenizer
 
@@ -172,12 +172,12 @@ def eval_model(args):
             question_tf = "".join(line["question"].split(" "))
             xarr = [i for i in range(len(total_tokens))]
             for i1 in xarr:
-                mystring = "".join(total_tokens[i1:])
+                mystring = "".join(total_tokens[i1:]).replace(" ", "")     # 如果是gemma2 模型， 要添加.replace(" ", "")
                 if question_tf not in mystring:
                     break
             i1 = i1 - 1
             for i2 in xarr[::-1]:
-                mystring = "".join(total_tokens[i1:i2 + 1])
+                mystring = "".join(total_tokens[i1:i2 + 1]).replace(" ", "")
                 if question_tf not in mystring:
                     break
             i2 = i2 + 1
