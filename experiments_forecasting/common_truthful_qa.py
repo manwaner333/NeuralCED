@@ -179,6 +179,7 @@ def _train_loop_forecasting(model_name, train_dataloader, val_dataloader,test_da
                 #     mask_real[i, 0:y_length, :] = True
                 # mask_pred_y = torch.masked_select(pred_y, mask_pred)
                 # mask_real_y = torch.masked_select(real_y, mask_real)
+
                 mask_real = torch.zeros(real_y.shape[0], real_y.shape[1], real_y.shape[2], dtype=torch.bool).to(device)
                 for i in range(len(train_x_lengths)):
                     x_length = train_x_lengths[i]

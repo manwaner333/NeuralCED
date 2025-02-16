@@ -481,7 +481,6 @@ def main_HaluEval_qa():
 
 
 
-
 # Split the generated file into two parts: one for training and another for testing
 def split_json_file(filename, ratio=0.8):
     data = []

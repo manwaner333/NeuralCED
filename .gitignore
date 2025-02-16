@@ -56,3 +56,7 @@ experiments_cde/datasets/*.png
 experiments_cde/datasets/*.npy
 experiments_cde/*.png
 resource.py
+custom_update.bib
+custom_update_update.bib
+
+src/*

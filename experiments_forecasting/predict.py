@@ -58,8 +58,8 @@ def _evaluate_metrics_forecasting(dataloader, model_cde, model_sde, x_times, tim
 
 
             plt.legend()
-            # plt.show()
-            plt.savefig("results/real_predict_254.png")
+            plt.show()
+            # plt.savefig("results/real_predict_254.png")
             # break
 
             qingli = 3
